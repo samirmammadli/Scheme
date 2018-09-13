@@ -26,7 +26,7 @@ namespace Scheme.Controllers
         [HttpGet]
         public IEnumerable<User> GetUsers()
         {
-            return _db.Users.ToList();
+            return _db.Users.Include(x=>x.Roles).ToList();
         }
 
         [HttpGet("{id?}")]

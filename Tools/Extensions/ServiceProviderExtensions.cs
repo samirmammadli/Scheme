@@ -13,11 +13,6 @@ namespace Scheme.Tools.Extensions
 {
     public static class ServiceProviderExtensions
     {
-        public static void AddMailService(this IServiceCollection services)
-        {
-            services.AddSingleton<IEmailSender, TLSMailSend>();
-        }
-
         public static void AddMailService(this IServiceCollection services, Action<MailServiceOptions> options)
         {
             MailServiceOptions opt = new MailServiceOptions();

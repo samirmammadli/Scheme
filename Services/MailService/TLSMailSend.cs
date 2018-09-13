@@ -16,14 +16,6 @@ namespace Scheme.Services.MailService
         public string SMTP_PASSWORD { get; set; }
         public string ErrorMessage { get; set; }
 
-        public TLSMailSend(string host, int port, string username, string password)
-        {
-            Host = host;
-            Port = port;
-            SMTP_USERNAME = username;
-            SMTP_PASSWORD = password;
-        }
-
         public TLSMailSend(MailServiceOptions opt)
         {
             int port = 587;
