@@ -1,17 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Scheme.Entities; // пространство имен UserContext и класса User
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Scheme.Entities;
 using System;
-using System.IdentityModel.Tokens.Jwt;
 using Scheme.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using System.Linq;
 using Scheme.Models;
 using System.Net.Mail;
@@ -26,13 +18,15 @@ namespace Scheme.Controllers
     public class AccountController : Controller
     {
         private ProjectContext _db;
+        private CodeGenerator _generator;
         private IEmailSender _sender;
         private ITokenAuthProvider _token;
-        public AccountController(ProjectContext context, IEmailSender sender, ITokenAuthProvider provider)
+        public AccountController(ProjectContext context, IEmailSender sender, ITokenAuthProvider provider, CodeGenerator generator)
         {
             _db = context;
             _sender = sender;
             _token = provider;
+            _generator = generator;
         }
 
         [HttpPost("login")]
@@ -96,12 +90,14 @@ namespace Scheme.Controllers
         public async Task<IActionResult> RegistrationCodeCheck([FromBody] string mail, int code)
         {
             if (!ModelState.IsValid) return BadRequest("Wrong Data!");
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(mail, StringComparison.OrdinalIgnoreCase));
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(mail, StringComparison.OrdinalIgnoreCase));
             if (user == null) return BadRequest("Wrong email or code!");
             var record = await _db.VerificationCodes.FirstOrDefaultAsync(x => x.Code == code && x.User.Id == user.Id);
             if (record == null) return BadRequest("Wrong email or code!");
 
             var token = _token.GetToken(user);
+            _db.VerificationCodes.Remove(record);
+            await _db.SaveChangesAsync();
             return Ok(token);
 
         }
@@ -109,12 +105,11 @@ namespace Scheme.Controllers
         [NonAction]
         private async Task SendMailAndGenerateCode(User user)
         {
-            var regCode = new CodeGenerator();
-            regCode.GenerateCode(2);
+            _generator.GenerateCode(2);
             var codes = await _db.VerificationCodes.Where(x => x.Id == user.Id).ToListAsync();
             if (codes != null) _db.VerificationCodes.RemoveRange(codes);
-            _db.VerificationCodes.Add(new VerificationCode() { Code = regCode.Code, Expires = regCode.ExpireDate, User = user });
-            var msg = ConfirmaionMessage(regCode.Code, user.Email);
+            _db.VerificationCodes.Add(new VerificationCode() { Code = _generator.Code, Expires = _generator.ExpireDate, User = user });
+            var msg = ConfirmaionMessage(_generator.Code, user.Email);
             await _sender.SendAsync(msg);
         }
 

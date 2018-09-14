@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Scheme.Entities;
+using Scheme.Models;
 using Scheme.Services;
 using Scheme.Services.MailService;
 using Scheme.Tools.Extensions;
@@ -33,6 +34,8 @@ namespace Scheme
                 options.UseSqlServer(connection));
 
             services.AddJWTBasedAuthorisation();
+
+            services.AddSingleton<CodeGenerator>();
 
             services.AddMailService(options =>
             {

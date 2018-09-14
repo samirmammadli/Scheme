@@ -5,6 +5,7 @@ using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Scheme.Models;
 using Scheme.Services.MailService;
 
 namespace Scheme.Controllers
@@ -12,14 +13,17 @@ namespace Scheme.Controllers
     public class HomeController : Controller
     {
         IEmailSender _sender;
-        public HomeController(IEmailSender emailSender)
+        private CodeGenerator _generator;
+        public HomeController(IEmailSender emailSender, CodeGenerator generator)
         {
             _sender = emailSender;
+            _generator = generator;
         }
         //[Authorize]
         public IActionResult Index()
         {
-            var mail = ConfirmaionMessage(3214, "samir4ik86@gmail.com");
+            _generator.GenerateCode(2);
+            var mail = ConfirmaionMessage(_generator.Code, "samir4ik86@gmail.com");
             _sender.Send(mail);
             return Ok();
         }
