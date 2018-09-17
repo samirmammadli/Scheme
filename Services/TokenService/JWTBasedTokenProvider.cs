@@ -20,7 +20,7 @@ namespace Scheme.Services.TokenService
             _db = db;
         }
 
-        async public Task<ClaimsIdentity> GetIdentity(User user, Role role = null)
+        async public Task<ClaimsIdentity> GetIdentityAsync(User user, Role role = null)
         {
             //Get existing roles from db
             var roles = await _db.Roles.AsNoTracking().Where(x => x.User.Id == user.Id).ToListAsync();
@@ -40,9 +40,9 @@ namespace Scheme.Services.TokenService
             return claimsIdentity;
         }
 
-        async public Task<AccessTokenResult> GetToken(User user, Role role = null)
+        async public Task<AccessTokenResult> GetTokenAsync(User user, Role role = null)
         {
-            var identity = await GetIdentity(user, role);
+            var identity = await GetIdentityAsync(user, role);
             if (identity == null) return null;
             var now = DateTime.UtcNow;
             var expire = now.AddDays(AuthOptions.LIFETIME);

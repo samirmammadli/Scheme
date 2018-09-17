@@ -7,7 +7,7 @@ namespace Scheme.Services.TokenService
 {
     public interface ITokenAuthProvider
     {
-        Task<ClaimsIdentity> GetIdentity(User user, Role role = null);
-        Task<AccessTokenResult> GetToken(User user, Role role = null);
+        Task<ClaimsIdentity> GetIdentityAsync(User user, Role role = null);
+        Task<AccessTokenResult> GetTokenAsync(User user, Role role = null);
     }
 }

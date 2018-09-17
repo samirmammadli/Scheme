@@ -10,15 +10,10 @@ using Scheme.Services.MailService;
 
 namespace Scheme.Controllers
 {
+    [RequireHttps]
+    [Authorize]
     public class HomeController : Controller
     {
-        IEmailSender _sender;
-        private CodeGenerator _generator;
-        public HomeController(IEmailSender emailSender, CodeGenerator generator)
-        {
-            _sender = emailSender;
-            _generator = generator;
-        }
         //[Authorize]
         public IActionResult Index()
         {

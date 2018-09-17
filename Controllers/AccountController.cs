@@ -35,15 +35,15 @@ namespace Scheme.Controllers
         {
             if (!ModelState.IsValid || model == null) return BadRequest();
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(model.Email, StringComparison.OrdinalIgnoreCase));
-            if (user == null) return Forbid("User not found!");
+            if (user == null) return BadRequest("User not found!");
             var salt = user.Salt;
             var passHash = user.PassHash;
             var cryptoProvider = new CryptographyProcessor();
-            if (!cryptoProvider.AreEqual(model.Password, passHash, salt)) return Forbid("Wrong username or password!");
+            if (!cryptoProvider.AreEqual(model.Password, passHash, salt)) return BadRequest("Wrong username or password!");
 
-            if (!user.IsConfirmed) return Unauthorized();
+            if (!user.IsConfirmed) return BadRequest();
             //TODO: Delete Role
-            var token = await _token.GetToken(user, new Role { Name = "_admin", Project = new Project { Id = 5, Name = "Some" }, User = user });
+            var token = await _token.GetTokenAsync(user, new Role { Name = "_admin", Project = new Project { Id = 5, Name = "Some" }, User = user });
             return Ok(token);
         }
 
@@ -83,7 +83,7 @@ namespace Scheme.Controllers
             var email = User.Identity.Name;
             var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
             if (user == null) return Unauthorized();
-            var token = _token.GetToken(user);
+            var token = await _token.GetTokenAsync(user);
             return Ok(token);
         }
 
@@ -97,7 +97,7 @@ namespace Scheme.Controllers
             var record = await _db.VerificationCodes.FirstOrDefaultAsync(x => x.Code == form.Code && x.User.Id == user.Id);
             if (record == null || record.Expires <= DateTime.UtcNow) return BadRequest("Wrong code or code is expired!");
 
-            var token = _token.GetToken(user);
+            var token = await _token.GetTokenAsync(user);
             _db.VerificationCodes.Remove(record);
             user.IsConfirmed = true;
             _db.Update(user);

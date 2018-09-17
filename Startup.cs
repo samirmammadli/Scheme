@@ -50,6 +50,7 @@ namespace Scheme
                     .AddJwtBearer(options =>
                     {
                         options.RequireHttpsMetadata = false;
+                        
                         options.TokenValidationParameters = new TokenValidationParameters
                         {
                             // укзывает, будет ли валидироваться издатель при валидации токена
@@ -88,6 +89,7 @@ namespace Scheme
 
             app.UseStaticFiles();
             app.UseAuthentication();
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
