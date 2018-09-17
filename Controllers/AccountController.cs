@@ -111,7 +111,7 @@ namespace Scheme.Controllers
             if (!ModelState.IsValid) return BadRequest("Wrong data");
             var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(mail, StringComparison.OrdinalIgnoreCase));
             if (user == null) return NotFound();
-            if (user.IsConfirmed) return BadRequest("Your account has alrady been confirmed!");
+            if (user.IsConfirmed) return BadRequest("Your account has already been confirmed!");
             await SendMailAndGenerateCode(user);
             return Ok();
             
