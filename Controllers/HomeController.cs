@@ -22,9 +22,6 @@ namespace Scheme.Controllers
         //[Authorize]
         public IActionResult Index()
         {
-            _generator.GenerateCode(2);
-            var mail = ConfirmaionMessage(_generator.Code, "samir4ik86@gmail.com");
-            _sender.Send(mail);
             return Ok();
         }
 

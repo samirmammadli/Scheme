@@ -10,6 +10,7 @@ using System.Net.Mail;
 using Scheme.Services.MailService;
 using Microsoft.AspNetCore.Authorization;
 using Scheme.Services.TokenService;
+using System.Net;
 
 namespace Scheme.Controllers
 {
@@ -68,9 +69,9 @@ namespace Scheme.Controllers
             };
 
 
-            await SendMailAndGenerateCode(newUser);
             await _db.Users.AddAsync(newUser);
             await _db.SaveChangesAsync();
+            await SendMailAndGenerateCode(newUser);
 
             return Ok("Success!");
         }
@@ -80,26 +81,40 @@ namespace Scheme.Controllers
         public async Task<IActionResult>RenewToken()
         {
             var email = User.Identity.Name;
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email == email);
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
             if (user == null) return Unauthorized();
             var token = _token.GetToken(user);
             return Ok(token);
         }
 
         [HttpPost("confirm")]
-        public async Task<IActionResult> RegistrationCodeCheck([FromBody] string mail, int code)
+        public async Task<IActionResult> RegistrationCodeCheck([FromBody] RegCodeCheckForm form)
         {
-            if (!ModelState.IsValid) return BadRequest("Wrong Data!");
-            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(mail, StringComparison.OrdinalIgnoreCase));
-            if (user == null) return BadRequest("Wrong email or code!");
-            var record = await _db.VerificationCodes.FirstOrDefaultAsync(x => x.Code == code && x.User.Id == user.Id);
-            if (record == null) return BadRequest("Wrong email or code!");
+            if (!ModelState.IsValid) return BadRequest("Wrong data");
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(form.Email, StringComparison.OrdinalIgnoreCase));
+            if (user == null) return NotFound("User not found!");
+            if (user.IsConfirmed) return BadRequest("Your account has alrady been confirmed!");
+            var record = await _db.VerificationCodes.FirstOrDefaultAsync(x => x.Code == form.Code && x.User.Id == user.Id);
+            if (record == null || record.Expires <= DateTime.UtcNow) return BadRequest("Wrong code or code is expired!");
 
             var token = _token.GetToken(user);
             _db.VerificationCodes.Remove(record);
+            user.IsConfirmed = true;
+            _db.Update(user);
             await _db.SaveChangesAsync();
             return Ok(token);
+        }
 
+        [HttpPost("resend")]
+        public async Task<IActionResult> ResendCode([FromBody] string mail)
+        {
+            if (!ModelState.IsValid) return BadRequest("Wrong data");
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(mail, StringComparison.OrdinalIgnoreCase));
+            if (user == null) return NotFound();
+            if (user.IsConfirmed) return BadRequest("Your account has alrady been confirmed!");
+            await SendMailAndGenerateCode(user);
+            return Ok();
+            
         }
 
         [NonAction]
@@ -109,6 +124,7 @@ namespace Scheme.Controllers
             var codes = await _db.VerificationCodes.Where(x => x.Id == user.Id).ToListAsync();
             if (codes != null) _db.VerificationCodes.RemoveRange(codes);
             _db.VerificationCodes.Add(new VerificationCode() { Code = _generator.Code, Expires = _generator.ExpireDate, User = user });
+            await _db.SaveChangesAsync();
             var msg = ConfirmaionMessage(_generator.Code, user.Email);
             await _sender.SendAsync(msg);
         }
