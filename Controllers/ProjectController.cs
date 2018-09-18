@@ -48,7 +48,9 @@ namespace Scheme.Controllers
             await _db.Roles.AddAsync(role);
             await _db.SaveChangesAsync();
 
-            return Ok(project);
+            var proj = _db.Projects.Include(x => x.Roles).FirstOrDefaultAsync();
+
+            return Ok(proj);
         }
     }
 }

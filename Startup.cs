@@ -72,7 +72,11 @@ namespace Scheme
                         };
                     });
 
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(options =>
+            {
+                options.SerializerSettings.ReferenceLoopHandling =
+                                           Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
