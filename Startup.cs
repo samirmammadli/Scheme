@@ -13,7 +13,6 @@ using Microsoft.IdentityModel.Tokens;
 using Scheme.Entities;
 using Scheme.Models;
 using Scheme.Services;
-using Scheme.Services.MailService;
 using Scheme.Tools.Extensions;
 
 namespace Scheme
