@@ -30,8 +30,6 @@ namespace Scheme.Services.TokenService
             {
                 new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email)
             };
-            roles.ForEach(x => claims.Add(new Claim(user.Id.ToString(), $"{x.Project.Id}{x.Name}")));
-            if (role != null) claims.Add(new Claim(user.Id.ToString(), $"{role.Project.Id}{role.Name}"));
 
             //Set identity
             var claimsIdentity =

@@ -49,7 +49,7 @@ namespace Scheme
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
                     {
-                        options.RequireHttpsMetadata = false;
+                        options.RequireHttpsMetadata = true;
                         
                         options.TokenValidationParameters = new TokenValidationParameters
                         {

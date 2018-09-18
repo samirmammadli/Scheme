@@ -28,27 +28,18 @@ namespace Scheme.Entities
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<UserCard>()
-            //    .HasKey(t => new { t.CardId, t.UserId });
-
             modelBuilder.Entity<User>().HasIndex(x => x.Email).IsUnique(true);
             modelBuilder.Entity<VerificationCode>().HasIndex(x => x.Code).IsUnique(true);
             modelBuilder.Entity<Column>().HasIndex(x => x.Name).IsUnique(true);
 
+            modelBuilder.Entity<Column>().HasOne<Project>().WithMany(x => x.Columns).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<Card>().HasOne<Column>().WithMany(x => x.Cards).OnDelete(DeleteBehavior.Cascade);
+
 
             #region
-            ////Default values
+            //Default values
             modelBuilder.Entity<User>().Property(x => x.IsConfirmed).HasDefaultValue<bool>(false);
-            //modelBuilder.Entity<Card>().Property(x => x.Color).HasDefaultValue("#FFFFFF");
-            //modelBuilder.Entity<Card>().Property(x => x.Score).HasDefaultValue(0);
             #endregion
-
-
-            ////Associations
-            //modelBuilder.Entity<UserCard>()
-            //    .HasOne(sc => sc.User)
-            //    .WithMany(s => s.UserCards)
-            //    .HasForeignKey(sc => sc.UserId);
 
         }
     }

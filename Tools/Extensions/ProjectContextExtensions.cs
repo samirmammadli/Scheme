@@ -14,7 +14,7 @@ namespace Scheme.Services
         {
             var role = context.Roles.AsNoTracking().FirstOrDefault(x => x.Id == userId && x.Project.Id == ProjectId);
             if (role == null) return false;
-            if (role.Name == roleName) return true;
+            if (role.Type == roleName) return true;
             return false;
         }
     }

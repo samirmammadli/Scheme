@@ -9,7 +9,7 @@ namespace Scheme.Entities
     public class Role
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Type { get; set; }
         [Required]
         public User User { get; set; }
         [Required]

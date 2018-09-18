@@ -43,7 +43,7 @@ namespace Scheme.Controllers
 
             if (!user.IsConfirmed) return BadRequest();
             //TODO: Delete Role
-            var token = await _token.GetTokenAsync(user, new Role { Name = "_admin", Project = new Project { Id = 5, Name = "Some" }, User = user });
+            var token = await _token.GetTokenAsync(user, new Role { Type = "_admin", Project = new Project { Id = 5, Name = "Some" }, User = user });
             return Ok(token);
         }
 

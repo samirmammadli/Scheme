@@ -12,9 +12,11 @@ namespace Scheme.Entities
         public DateTime CreationDate { get; set; }
         public List<Column> Columns { get; set; }
         public List<Sprint> Sprints { get; set; }
+        public List<Role> Roles { get; set; }
 
         public Project()
         {
+            Roles = new List<Role>();
             Sprints = new List<Sprint>();
             Columns = new List<Column>();
         }

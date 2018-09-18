@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ namespace Scheme.Controllers
 {
     [Produces("application/json")]
     [Route("api/[controller]")]
+    [Authorize]
     [RequireHttps]
     public class UsersController : Controller
     {
@@ -23,31 +25,31 @@ namespace Scheme.Controllers
             this._db = db;
         }
 
-        [HttpGet]
-        public IEnumerable<User> GetUsers()
-        {
-            return _db.Users.Include(x=>x.Roles).ToList();
-        }
+        //[HttpGet]
+        //public IEnumerable<User> GetUsers()
+        //{
+        //    return _db.Users.Include(x=>x.Roles).ToList();
+        //}
 
-        [HttpGet("{id?}")]
-        public IActionResult GetUser(int id)
-        {
-            User user = _db.Users.FirstOrDefault(x => x.Id == id);
-            if (user == null) return NotFound();
-            return Ok(user);
-        }
+        //[HttpGet("{id?}")]
+        //public IActionResult GetUser(int id)
+        //{
+        //    User user = _db.Users.FirstOrDefault(x => x.Id == id);
+        //    if (user == null) return NotFound();
+        //    return Ok(user);
+        //}
 
-        [HttpPost]
-        public IActionResult AddUser([FromBody] User user)
-        {
-            if (user != null && ModelState.IsValid)
-            {
-                _db.Users.Add(user);
-                _db.SaveChanges();
-                return Ok(user);
-            }
-            return BadRequest(ModelState);
-        }
+        //[HttpPost]
+        //public IActionResult AddUser([FromBody] User user)
+        //{
+        //    if (user != null && ModelState.IsValid)
+        //    {
+        //        _db.Users.Add(user);
+        //        _db.SaveChanges();
+        //        return Ok(user);
+        //    }
+        //    return BadRequest(ModelState);
+        //}
 
         [HttpPost]
         [Route("delete")]
