@@ -10,7 +10,6 @@ using System.Net.Mail;
 using Scheme.Services.MailService;
 using Microsoft.AspNetCore.Authorization;
 using Scheme.Services.TokenService;
-using System.Net;
 
 namespace Scheme.Controllers
 {

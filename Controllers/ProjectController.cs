@@ -8,10 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Scheme.Entities;
 using Scheme.Models;
+using Scheme.Services;
 
 namespace Scheme.Controllers
 {
     [Route("api/Project")]
+    [RequireHttps]
     [Authorize]
     public class ProjectController : Controller
     {
@@ -22,19 +24,21 @@ namespace Scheme.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateProject([FromBody] NewProjectModel model)
+        public async Task<IActionResult> CreateProject([FromBody] string projectName)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(model.CreatorEmail, StringComparison.OrdinalIgnoreCase));
+            var mail = User.Identity.Name;
+
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(mail, StringComparison.OrdinalIgnoreCase));
 
             if (user == null)
                 return NotFound("User not found!");
 
             var project = new Project
             {
-                Name = model.ProjectName,
+                Name = projectName,
                 CreationDate = DateTime.UtcNow
             };
 
@@ -48,9 +52,30 @@ namespace Scheme.Controllers
             await _db.Roles.AddAsync(role);
             await _db.SaveChangesAsync();
 
-            var proj = _db.Projects.Include(x => x.Roles).FirstOrDefaultAsync();
+            return Ok(project);
+        }
 
-            return Ok(proj);
+        [HttpPost("delete")]
+        public async Task<IActionResult> DeleteProject([FromBody] int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var email = User.Identity.Name;
+
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            var project = await _db.Projects.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (user == null || project == null)
+                return BadRequest("User or Project not found!");
+
+            if (!_db.CheckRole(id, user.Id, ProjectUserRole.Master)) 
+                return BadRequest("You do not have permission to remove this project!");
+
+            _db.Projects.Remove(project);
+            await _db.SaveChangesAsync();
+
+            return Ok("Success!");
         }
     }
 }

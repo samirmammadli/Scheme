@@ -10,11 +10,11 @@ namespace Scheme.Services
 {
     public static class ProjectContextExtensions
     {
-        public static bool CheckRole(this ProjectContext context, int ProjectId, int userId, string roleName)
+        public static bool CheckRole(this ProjectContext context, int ProjectId, int userId, ProjectUserRole roleName)
         {
-            var role = context.Roles.AsNoTracking().FirstOrDefault(x => x.Id == userId && x.Project.Id == ProjectId);
+            var role = context.Roles.AsNoTracking().FirstOrDefault(x => x.User.Id == userId && x.Project.Id == ProjectId);
             if (role == null) return false;
-            if (role.Type == roleName) return true;
+            if (role.Type.Equals(roleName.ToString(), StringComparison.OrdinalIgnoreCase)) return true;
             return false;
         }
     }
