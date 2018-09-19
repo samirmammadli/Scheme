@@ -11,7 +11,7 @@ namespace Scheme.Controllers
     {
         public async void Index()
         {
-           await Response.WriteAsync("salam");
+           await Response.WriteAsync("salam ay brat");
         }
     }
 }
