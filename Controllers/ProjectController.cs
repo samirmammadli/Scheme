@@ -64,6 +64,7 @@ namespace Scheme.Controllers
             var email = User.Identity.Name;
 
             var master = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+
             var project = await _db.Projects.FirstOrDefaultAsync(x => x.Id == id);
 
             if (master == null || project == null)
@@ -88,7 +89,7 @@ namespace Scheme.Controllers
 
             var master = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
 
-            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(form.UserEmail, StringComparison.OrdinalIgnoreCase));
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(form.UserEmail, StringComparison.OrdinalIgnoreCase));
 
             var project = await _db.Projects.FirstOrDefaultAsync(x => x.Id == form.ProjectId);
 
