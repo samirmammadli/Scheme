@@ -44,7 +44,7 @@ namespace Scheme.Controllers
 
             var role = new Role
             {
-                Type = ProjectUserRole.Master.ToString(),
+                Type = ProjectUserRole.Owner.ToString(),
                 Project = project, User = user
             };
 
@@ -70,7 +70,7 @@ namespace Scheme.Controllers
             if (master == null || project == null)
                 return BadRequest("User or Project not found!");
 
-            if (!_db.CheckRole(id, master.Id, ProjectUserRole.Master)) 
+            if (!_db.CheckRole(id, master.Id, ProjectUserRole.Owner)) 
                 return BadRequest("You do not have permission to remove this project!");
 
             _db.Projects.Remove(project);
@@ -82,6 +82,9 @@ namespace Scheme.Controllers
         [HttpPost("adduser")]
         public async Task<IActionResult> AddUserToProject([FromBody] AddUserToProjectForm form)
         {
+            if (form.Role == ProjectUserRole.Owner)
+                form.Role = ProjectUserRole.Master;
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 

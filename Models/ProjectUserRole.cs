@@ -7,6 +7,7 @@ namespace Scheme.Models
 {
     public enum ProjectUserRole
     {
+        Owner,
         Master,
         Programmer
     }
