@@ -44,7 +44,7 @@ namespace Scheme.Controllers
 
             var role = new Role
             {
-                Type = ProjectUserRole.Owner.ToString(),
+                Type = ProjectUserRole.Owner,
                 Project = project, User = user
             };
 
@@ -70,7 +70,7 @@ namespace Scheme.Controllers
             if (master == null || project == null)
                 return BadRequest("User or Project not found!");
 
-            if (!_db.CheckRole(id, master.Id, ProjectUserRole.Owner)) 
+            if (!_db.ProjectRoleIsOwner(id, master.Id)) 
                 return BadRequest("You do not have permission to remove this project!");
 
             _db.Projects.Remove(project);
@@ -79,12 +79,9 @@ namespace Scheme.Controllers
             return Ok("Success!");
         }
 
-        [HttpPost("adduser")]
-        public async Task<IActionResult> AddUserToProject([FromBody] AddUserToProjectForm form)
+        [HttpPost("addprogrammer")]
+        public async Task<IActionResult> AddProgrammerToProject([FromBody] AddUserToProjectForm form)
         {
-            if (form.Role == ProjectUserRole.Owner)
-                form.Role = ProjectUserRole.Master;
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
@@ -99,7 +96,7 @@ namespace Scheme.Controllers
             if (master == null || project == null || user == null)
                 return BadRequest("User or Project not found!");
 
-            if (!_db.CheckRole(form.ProjectId, master.Id, ProjectUserRole.Owner))
+            if (!_db.ProjectRoleIsMaster(form.ProjectId, master.Id))
                 return BadRequest("You do not have permission to add a user in this project!");
 
             var oldRole = await _db.Roles.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User.Id == user.Id);
@@ -111,7 +108,46 @@ namespace Scheme.Controllers
             {
                 Project = project,
                 User = user,
-                Type = form.Role.ToString()
+                Type = ProjectUserRole.Programmer
+            };
+
+            await _db.Roles.AddAsync(newRole);
+
+            await _db.SaveChangesAsync();
+
+            return Ok("Success!");
+        }
+
+        [HttpPost("addmaster")]
+        public async Task<IActionResult> AddMasterToProject([FromBody] AddUserToProjectForm form)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var email = User.Identity.Name;
+
+            var master = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(form.UserEmail, StringComparison.OrdinalIgnoreCase));
+
+            var project = await _db.Projects.FirstOrDefaultAsync(x => x.Id == form.ProjectId);
+
+            if (master == null || project == null || user == null)
+                return BadRequest("User or Project not found!");
+
+            if (!_db.ProjectRoleIsOwner(form.ProjectId, master.Id))
+                return BadRequest("You do not have permission to add a user in this project!");
+
+            var oldRole = await _db.Roles.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User.Id == user.Id);
+
+            if (oldRole != null)
+                _db.Roles.Remove(oldRole);
+
+            var newRole = new Role()
+            {
+                Project = project,
+                User = user,
+                Type = ProjectUserRole.Master
             };
 
             await _db.Roles.AddAsync(newRole);

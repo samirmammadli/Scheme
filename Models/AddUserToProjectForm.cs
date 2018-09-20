@@ -13,7 +13,5 @@ namespace Scheme.Models
         public string UserEmail { get; set; }
         [Required]
         public int ProjectId { get; set; }
-        [Required]
-        public ProjectUserRole Role { get; set; }
     }
 }

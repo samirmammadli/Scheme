@@ -56,14 +56,7 @@ namespace Scheme.Controllers
             if (!user.IsConfirmed)
                 return BadRequest();
 
-            var token = await _token.GetTokenAsync(user, new Role
-            {
-                Type = "_admin", Project = new Project
-                {
-                    Id = 5, Name = "Some"
-                },
-                User = user
-            });
+            var token = await _token.GetTokenAsync(user);
 
             return Ok(token);
         }
