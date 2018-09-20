@@ -79,8 +79,8 @@ namespace Scheme.Controllers
             return Ok("Success!");
         }
 
-        [HttpPost("addprogrammer")]
-        public async Task<IActionResult> AddProgrammerToProject([FromBody] AddUserToProjectForm form)
+        [HttpPost("adduser")]
+        public async Task<IActionResult> AddUserToProject([FromBody] AddUserToProjectForm form)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -96,58 +96,14 @@ namespace Scheme.Controllers
             if (master == null || project == null || user == null)
                 return BadRequest("User or Project not found!");
 
-            if (!_db.ProjectRoleIsMaster(form.ProjectId, master.Id))
+            if (!_db.CheckRoleAndDeleteOldIfExist(project, master, user, form.Role))
                 return BadRequest("You do not have permission to add a user in this project!");
-
-            var oldRole = await _db.Roles.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User.Id == user.Id);
-
-            if (oldRole != null)
-                _db.Roles.Remove(oldRole);
 
             var newRole = new Role()
             {
                 Project = project,
                 User = user,
-                Type = ProjectUserRole.Programmer
-            };
-
-            await _db.Roles.AddAsync(newRole);
-
-            await _db.SaveChangesAsync();
-
-            return Ok("Success!");
-        }
-
-        [HttpPost("addmaster")]
-        public async Task<IActionResult> AddMasterToProject([FromBody] AddUserToProjectForm form)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var email = User.Identity.Name;
-
-            var master = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(form.UserEmail, StringComparison.OrdinalIgnoreCase));
-
-            var project = await _db.Projects.FirstOrDefaultAsync(x => x.Id == form.ProjectId);
-
-            if (master == null || project == null || user == null)
-                return BadRequest("User or Project not found!");
-
-            if (!_db.ProjectRoleIsOwner(form.ProjectId, master.Id))
-                return BadRequest("You do not have permission to add a user in this project!");
-
-            var oldRole = await _db.Roles.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User.Id == user.Id);
-
-            if (oldRole != null)
-                _db.Roles.Remove(oldRole);
-
-            var newRole = new Role()
-            {
-                Project = project,
-                User = user,
-                Type = ProjectUserRole.Master
+                Type = form.Role
             };
 
             await _db.Roles.AddAsync(newRole);

@@ -26,5 +26,20 @@ namespace Scheme.Services
             if (roleNumber < 2) return true;
             return false;
         }
+
+        public static bool CheckRoleAndDeleteOldIfExist(this ProjectContext context, Project project, User from, User to, ProjectUserRole role)
+        {
+            var fromRole = context.Roles.AsNoTracking().FirstOrDefault(x => x.User.Id == from.Id && x.Project.Id == project.Id);
+            var toRole = context.Roles.FirstOrDefault(x => x.Project.Id == to.Id && x.User.Id == to.Id);
+            if (fromRole == null || fromRole.Type >= role)
+                return false;
+            if (toRole !=null)
+            {
+                if (fromRole.Type >= toRole.Type)
+                    return false;
+                else context.Remove(toRole);
+            }
+            return true;
+        }
     }
 }
