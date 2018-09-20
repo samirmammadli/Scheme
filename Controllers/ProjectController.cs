@@ -99,7 +99,7 @@ namespace Scheme.Controllers
             if (master == null || project == null || user == null)
                 return BadRequest("User or Project not found!");
 
-            if (!_db.CheckRole(form.ProjectId, master.Id, ProjectUserRole.Master))
+            if (!_db.CheckRole(form.ProjectId, master.Id, ProjectUserRole.Owner))
                 return BadRequest("You do not have permission to add a user in this project!");
 
             var oldRole = await _db.Roles.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User.Id == user.Id);
