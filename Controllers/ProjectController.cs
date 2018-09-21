@@ -23,7 +23,7 @@ namespace Scheme.Controllers
             _db = db;
         }
 
-        [HttpPost("create")]
+        [HttpPost("add/project")]
         public async Task<IActionResult> CreateProject([FromBody] string projectName)
         {
             if (!ModelState.IsValid)
@@ -55,7 +55,7 @@ namespace Scheme.Controllers
             return Ok(project);
         }
 
-        [HttpPost("delete")]
+        [HttpPost("delete/project")]
         public async Task<IActionResult> DeleteProject([FromBody] int id)
         {
             if (!ModelState.IsValid)
@@ -79,7 +79,7 @@ namespace Scheme.Controllers
             return Ok("Success!");
         }
 
-        [HttpPost("adduser")]
+        [HttpPost("add/user")]
         public async Task<IActionResult> AddUserToProject([FromBody] AddUserToProjectForm form)
         {
             if (!ModelState.IsValid)

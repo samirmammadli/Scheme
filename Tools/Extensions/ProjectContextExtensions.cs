@@ -18,15 +18,6 @@ namespace Scheme.Services
             return false;
         }
 
-        public static bool ProjectRoleIsMaster(this ProjectContext context, int ProjectId, int userId)
-        {
-            var role = context.Roles.AsNoTracking().FirstOrDefault(x => x.User.Id == userId && x.Project.Id == ProjectId);
-            if (role == null) return false;
-            var roleNumber = (int)role.Type;
-            if (roleNumber < 2) return true;
-            return false;
-        }
-
         public static bool CheckRoleAndDeleteOldIfExist(this ProjectContext context, Project project, User from, User to, ProjectUserRole role)
         {
             var fromRole = context.Roles.AsNoTracking().FirstOrDefault(x => x.User.Id == from.Id && x.Project.Id == project.Id);
