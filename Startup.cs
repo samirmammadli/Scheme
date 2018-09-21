@@ -48,8 +48,8 @@ namespace Scheme
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddJwtBearer(options =>
                     {
-                        options.RequireHttpsMetadata = true;
-                        
+                        options.RequireHttpsMetadata = true; 
+
                         options.TokenValidationParameters = new TokenValidationParameters
                         {
                             // укзывает, будет ли валидироваться издатель при валидации токена
@@ -70,6 +70,7 @@ namespace Scheme
                             ValidateIssuerSigningKey = true,
                         };
                     });
+
 
             services.AddMvc().AddJsonOptions(options =>
             {
