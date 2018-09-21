@@ -4,14 +4,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Scheme.Models;
 
 namespace Scheme.Controllers
 {
     public class HomeController : Controller
     {
-        public async void Index()
+        public IActionResult Index()
         {
-           await Response.WriteAsync("salam ay brat, kak dela?");
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Login(LogInModel logInModel)
+        {
+
+            return Ok(logInModel.Email);
         }
     }
 }
