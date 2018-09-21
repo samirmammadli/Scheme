@@ -33,24 +33,10 @@ namespace Scheme.Controllers
 
             var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(mail, StringComparison.OrdinalIgnoreCase));
 
-            if (user == null)
-                return NotFound("User not found!");
+            var project = await _db.CreateProject(user, projectName);
 
-            var project = new Project
-            {
-                Name = projectName,
-                CreationDate = DateTime.UtcNow
-            };
-
-            var role = new Role
-            {
-                Type = ProjectUserRole.Owner,
-                Project = project, User = user
-            };
-
-            await _db.Projects.AddAsync(project);
-            await _db.Roles.AddAsync(role);
-            await _db.SaveChangesAsync();
+            if (project == null)
+                return BadRequest("Wrong information!");
 
             return Ok(project);
         }
@@ -63,18 +49,12 @@ namespace Scheme.Controllers
 
             var email = User.Identity.Name;
 
-            var master = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
 
-            var project = await _db.Projects.FirstOrDefaultAsync(x => x.Id == id);
+            var isSuccess = await _db.DeleteProjectAsync(user, id);
 
-            if (master == null || project == null)
-                return BadRequest("User or Project not found!");
-
-            if (!_db.ProjectRoleIsOwner(id, master.Id)) 
-                return BadRequest("You do not have permission to remove this project!");
-
-            _db.Projects.Remove(project);
-            await _db.SaveChangesAsync();
+            if (!isSuccess)
+                return BadRequest("Not found or you do not have permission!");
 
             return Ok("Success!");
         }
@@ -87,28 +67,12 @@ namespace Scheme.Controllers
 
             var email = User.Identity.Name;
 
-            var master = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            var fromUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
 
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(form.UserEmail, StringComparison.OrdinalIgnoreCase));
+            var isSuccess = await _db.AddUserToProjectAsync(fromUser, form);
 
-            var project = await _db.Projects.FirstOrDefaultAsync(x => x.Id == form.ProjectId);
-
-            if (master == null || project == null || user == null)
-                return BadRequest("User or Project not found!");
-
-            if (!_db.CheckRoleAndDeleteOldIfExist(project, master, user, form.Role))
-                return BadRequest("You do not have permission to add a user in this project!");
-
-            var newRole = new Role()
-            {
-                Project = project,
-                User = user,
-                Type = form.Role
-            };
-
-            await _db.Roles.AddAsync(newRole);
-
-            await _db.SaveChangesAsync();
+            if (!isSuccess)
+                return BadRequest("Not found or you do not have permission!");
 
             return Ok("Success!");
         }
