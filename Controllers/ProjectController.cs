@@ -76,5 +76,28 @@ namespace Scheme.Controllers
 
             return Ok("Success!");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProjects()
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var email = User.Identity.Name;
+
+            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+
+            if (user == null)
+                return BadRequest("User Not Found!");
+
+            var roles = await _db.Roles.AsNoTracking().Include(x=> x.Project).Where(x => x.User.Id == user.Id).ToListAsync();
+
+            if (roles == null)
+                return BadRequest("No projects found!");
+
+            var projects = roles.Select(x => x.Project);
+
+            return Ok(projects);
+        }
     }
 }
