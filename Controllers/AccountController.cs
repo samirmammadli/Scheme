@@ -42,7 +42,7 @@ namespace Scheme.Controllers
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(model.Email, StringComparison.OrdinalIgnoreCase));
 
             if (user == null)
-                return BadRequest("User not found!");
+                return BadRequest(AccountErrorMessages.NotRegistered);
 
             var salt = user.Salt;
 
@@ -51,10 +51,10 @@ namespace Scheme.Controllers
             var cryptoProvider = new CryptographyProcessor();
 
             if (!cryptoProvider.AreEqual(model.Password, passHash, salt))
-                return BadRequest("Wrong username or password!");
+                return BadRequest(AccountErrorMessages.NotRegistered);
 
             if (!user.IsConfirmed)
-                return BadRequest();
+                return BadRequest(AccountErrorMessages.NotConfirmed);
 
             var token = await _token.GetTokenAsync(user);
 
