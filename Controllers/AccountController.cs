@@ -37,7 +37,7 @@ namespace Scheme.Controllers
         public async Task<IActionResult> Login([FromBody] LogInModel model)
         {
             if (!ModelState.IsValid || model == null)
-                return BadRequest();
+                return BadRequest(ModelState);
 
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(model.Email, StringComparison.OrdinalIgnoreCase));
 
