@@ -56,7 +56,7 @@ namespace Scheme.Controllers
             if (!user.IsConfirmed)
                 return BadRequest(AccountErrorMessages.NotConfirmed);
 
-            var token = await _token.GetTokenAsync(user);
+            var token = await _token.GetTokenAsync(user); 
 
             return Ok(token);
         }
