@@ -10,6 +10,7 @@ using System.Net.Mail;
 using Scheme.Services.MailService;
 using Microsoft.AspNetCore.Authorization;
 using Scheme.Services.TokenService;
+using Scheme.OutputDataConvert;
 
 namespace Scheme.Controllers
 {
@@ -56,7 +57,7 @@ namespace Scheme.Controllers
             if (!user.IsConfirmed)
                 return BadRequest(AccountErrorMessages.NotConfirmed);
 
-            var token = await _token.GetTokenAsync(user); 
+            var token = await _token.GetTokenAsync(user);
 
             return Ok(token);
         }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Scheme.Entities;
 using Scheme.Models;
+using Scheme.OutputDataConvert;
 using Scheme.Services;
 
 namespace Scheme.Controllers
@@ -38,7 +39,7 @@ namespace Scheme.Controllers
             if (project == null)
                 return BadRequest("Wrong information!");
 
-            return Ok(project);
+            return Ok(project.AdaptForOutput());
         }
 
         [HttpPost("delete/project")]
@@ -97,7 +98,7 @@ namespace Scheme.Controllers
 
             var projects = roles.Select(x => x.Project);
 
-            return Ok(projects);
+            return Ok(projects.AdaptForOutput());
         }
     }
 }
