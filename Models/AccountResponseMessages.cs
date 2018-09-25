@@ -9,6 +9,6 @@ namespace Scheme.Models
     {
         OK,
         NotConfirmed,
-        NotRegistered
+        NotFound
     }
 }

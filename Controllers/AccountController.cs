@@ -34,7 +34,7 @@ namespace Scheme.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LogInModel model)
+        public async Task<IActionResult> Login([FromBody] LogInForm model)
         {
             if (!ModelState.IsValid || model == null)
                 return BadRequest(ModelState);
@@ -42,7 +42,7 @@ namespace Scheme.Controllers
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(model.Email, StringComparison.OrdinalIgnoreCase));
 
             if (user == null)
-                return BadRequest(AccountErrorMessages.NotRegistered);
+                return BadRequest(AccountErrorMessages.NotFound);
 
             var salt = user.Salt;
 
@@ -51,7 +51,7 @@ namespace Scheme.Controllers
             var cryptoProvider = new CryptographyProcessor();
 
             if (!cryptoProvider.AreEqual(model.Password, passHash, salt))
-                return BadRequest(AccountErrorMessages.NotRegistered);
+                return BadRequest(AccountErrorMessages.NotFound);
 
             if (!user.IsConfirmed)
                 return BadRequest(AccountErrorMessages.NotConfirmed);
@@ -62,7 +62,7 @@ namespace Scheme.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegistrationModel model)
+        public async Task<IActionResult> Register([FromBody] RegistrationForm model)
         {
             if (!ModelState.IsValid || model == null) return BadRequest();
 

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Scheme.Models
 {
-    public class LogInModel
+    public class LogInForm
     {
         [Required(ErrorMessage = "Email field is empty!")]
         [EmailAddress(ErrorMessage = "Wrong Email address!")]
