@@ -9,8 +9,11 @@ namespace Scheme.Services.MailService
     public class MailServiceOptions
     {
         public string Host { get; set; }
+
         public string Port { get; set; }
+
         public string SMTP_USERNAME { get; set; }
+
         public string SMTP_PASSWORD { get; set; }
     }
     

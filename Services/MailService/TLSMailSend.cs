@@ -9,20 +9,26 @@ namespace Scheme.Services.MailService
 {
     public class TLSMailSend : IEmailSender
     {
+        public int Port { get; set; }
 
         public string Host { get; set; }
-        public int Port { get; set; }
+
         public string SMTP_USERNAME { get; set; }
+
         public string SMTP_PASSWORD { get; set; }
+
         public string ErrorMessage { get; set; }
 
         public TLSMailSend(MailServiceOptions opt)
         {
-            int port = 587;
-            Int32.TryParse(opt.Port, out port); 
+            Int32.TryParse(opt.Port, out int port);
+
             Host = opt.Host;
+
             Port = port;
+
             SMTP_USERNAME = opt.SMTP_USERNAME;
+
             SMTP_PASSWORD = opt.SMTP_PASSWORD;
         }
 

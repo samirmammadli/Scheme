@@ -22,19 +22,18 @@ namespace Scheme.Services.TokenService
 
         async public Task<ClaimsIdentity> GetIdentityAsync(User user, Role role = null)
         {
-            //Get existing roles from db
             var roles = await _db.Roles.AsNoTracking().Where(x => x.User.Id == user.Id).ToListAsync();
 
-            //Add claims
             var claims = new List<Claim>
             {
                 new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email)
             };
 
-            //Set identity
-            var claimsIdentity =
-            new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
+            var claimsIdentity = new ClaimsIdentity(claims, 
+                "Token",
+                ClaimsIdentity.DefaultNameClaimType,
                 ClaimsIdentity.DefaultRoleClaimType);
+
             return claimsIdentity;
         }
 
@@ -48,23 +47,21 @@ namespace Scheme.Services.TokenService
 
             var expire = now.AddDays(AuthOptions.LIFETIME);
 
-            // Create JWT-token
             var jwt = new JwtSecurityToken(
                     issuer: AuthOptions.ISSUER,
                     audience: AuthOptions.AUDIENCE,
                     notBefore: now,
                     claims: identity.Claims,
                     expires: expire,
-                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                    signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(),
+                                                               SecurityAlgorithms.HmacSha256));
 
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-            var response = new AccessTokenResult
-            (
+            var response = new AccessTokenResult(
                 token: encodedJwt,
                 username: identity.Name,
-                expireDate: expire
-            );
+                expireDate: expire);
 
             return response;
         }
