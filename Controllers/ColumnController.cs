@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Scheme.Entities;
 using Scheme.Models;
+using Scheme.Tools.Extension_Methods;
 
 namespace Scheme.Controllers
 {
@@ -29,12 +30,13 @@ namespace Scheme.Controllers
                 return BadRequest(ControllerErrorCode.WrongInputData);
 
             var email = User.Identity.Name;
-            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email);
-            if (user == null)
-                return BadRequest(ControllerErrorCode.UserNotFound);
 
-            var columns = _db.Columns.AsNoTracking().Where(x => x.Project.Id == projectId);
+            var columns = await _db.GetColumns(email, projectId);
 
+            if (columns == null)
+                return BadRequest(_db.Columns.GetError());
+
+            return Ok(columns);
         }
     }
 }
