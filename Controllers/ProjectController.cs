@@ -19,6 +19,7 @@ namespace Scheme.Controllers
     public class ProjectController : Controller
     {
         private ProjectContext _db;
+
         public ProjectController(ProjectContext db)
         {
             _db = db;
@@ -30,11 +31,9 @@ namespace Scheme.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var mail = User.Identity.Name;
+            var email = User.Identity.Name;
 
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(mail, StringComparison.OrdinalIgnoreCase));
-
-            var project = await _db.CreateProject(user, projectName);
+            var project = await _db.CreateProject(email, projectName);
 
             if (project == null)
                 return BadRequest("Wrong information!");
@@ -50,9 +49,7 @@ namespace Scheme.Controllers
 
             var email = User.Identity.Name;
 
-            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-
-            var isSuccess = await _db.DeleteProjectAsync(user, id);
+            var isSuccess = await _db.DeleteProjectAsync(email, id);
 
             if (!isSuccess)
                 return BadRequest("Not found or you do not have permission!");
@@ -61,19 +58,17 @@ namespace Scheme.Controllers
         }
 
         [HttpPost("add/user")]
-        public async Task<IActionResult> AddUserToProject([FromBody] AddUserToProjectForm form)
+        public async Task<IActionResult> AddUserToProject([FromBody] AddUserToProjectForm from)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var email = User.Identity.Name;
 
-            var fromUser = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-
-            var isSuccess = await _db.AddUserToProjectAsync(fromUser, form);
+            var isSuccess = await _db.AddUserToProjectAsync(email, from);
 
             if (!isSuccess)
-                return BadRequest("Not found or you do not have permission!");
+                return BadRequest(_db.Projects.GetError());
 
             return Ok("Success!");
         }
@@ -86,17 +81,10 @@ namespace Scheme.Controllers
 
             var email = User.Identity.Name;
 
-            var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            var projects = await _db.GetProjects(email);
 
-            if (user == null)
-                return BadRequest("User Not Found!");
-
-            var roles = await _db.Roles.AsNoTracking().Include(x=> x.Project).Where(x => x.User.Id == user.Id).ToListAsync();
-
-            if (roles == null)
-                return BadRequest("No projects found!");
-
-            var projects = roles.Select(x => x.Project);
+            if (projects == null)
+                return BadRequest(_db.Projects.GetError());
 
             return Ok(projects.AdaptForOutput());
         }

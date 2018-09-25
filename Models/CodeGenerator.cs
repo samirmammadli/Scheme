@@ -8,7 +8,9 @@ namespace Scheme.Models
     public class CodeGenerator
     {
         public int Code { get; set; }
+
         private static Random _rnd = new Random();
+
         public DateTime ExpireDate { get; set; }
 
         public void GenerateCode(int hours)

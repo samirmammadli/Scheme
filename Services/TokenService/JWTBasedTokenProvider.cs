@@ -41,9 +41,13 @@ namespace Scheme.Services.TokenService
         async public Task<AccessTokenResult> GetTokenAsync(User user, Role role = null)
         {
             var identity = await GetIdentityAsync(user, role);
+
             if (identity == null) return null;
+
             var now = DateTime.UtcNow;
+
             var expire = now.AddDays(AuthOptions.LIFETIME);
+
             // Create JWT-token
             var jwt = new JwtSecurityToken(
                     issuer: AuthOptions.ISSUER,
@@ -52,6 +56,7 @@ namespace Scheme.Services.TokenService
                     claims: identity.Claims,
                     expires: expire,
                     signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
             var response = new AccessTokenResult
@@ -60,6 +65,7 @@ namespace Scheme.Services.TokenService
                 username: identity.Name,
                 expireDate: expire
             );
+
             return response;
         }
     }

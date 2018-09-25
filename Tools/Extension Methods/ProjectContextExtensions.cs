@@ -10,26 +10,50 @@ namespace Scheme.Services
 {
     public static class ProjectContextExtensions
     {
-        public static async Task<bool> AddUserToProjectAsync(this ProjectContext db, User fromUser, AddUserToProjectForm form)
+        private static ControllerErrorCode _code;
+
+        public static ControllerErrorCode GetError(this DbSet<Project> projects)
         {
-            var toUser = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(form.UserEmail, StringComparison.OrdinalIgnoreCase));
+            return _code;
+        }
 
-            var project = await db.Projects.FirstOrDefaultAsync(x => x.Id == form.ProjectId);
+        public static async Task<bool> AddUserToProjectAsync(this ProjectContext db, string fromEmail, AddUserToProjectForm from)
+        {
+            var fromUser = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(fromEmail, StringComparison.OrdinalIgnoreCase));
 
-            if (fromUser == null || project == null || toUser == null)
+            var toUser = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(from.UserEmail, StringComparison.OrdinalIgnoreCase));
+
+            if (fromUser == null || toUser == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
                 return false;
+            }
+
+            var project = await db.Projects.FirstOrDefaultAsync(x => x.Id == from.ProjectId);
+
+            if (project == null)
+            {
+                _code = ControllerErrorCode.ProjectNotFound;
+                return false;
+            }
 
             var fromUserRole = db.Roles.AsNoTracking().FirstOrDefault(x => x.User.Id == fromUser.Id && x.Project.Id == project.Id);
 
-            var toUserRole = db.Roles.FirstOrDefault(x => x.Project.Id == form.ProjectId && x.User.Id == toUser.Id);
+            var toUserRole = db.Roles.FirstOrDefault(x => x.Project.Id == from.ProjectId && x.User.Id == toUser.Id);
 
-            if (fromUserRole == null || fromUserRole.Type >= form.Role)
+            if (fromUserRole == null || fromUserRole.Type >= from.Role)
+            {
+                _code = ControllerErrorCode.PermissionsDenied;
                 return false;
+            }
 
             if (toUserRole != null)
             {
                 if (fromUserRole.Type >= toUserRole.Type)
+                {
+                    _code = ControllerErrorCode.PermissionsDenied;
                     return false;
+                }
                 else
                     db.Remove(toUserRole);
             }
@@ -38,7 +62,7 @@ namespace Scheme.Services
             {
                 Project = project,
                 User = toUser,
-                Type = form.Role
+                Type = from.Role
             };
 
             await db.Roles.AddAsync(newRole);
@@ -48,23 +72,31 @@ namespace Scheme.Services
             return true;
         }
 
-        public static async Task<bool> DeleteProjectAsync(this ProjectContext db, User user, int projectId)
+        public static async Task<bool> DeleteProjectAsync(this ProjectContext db, string userEmail, int projectId)
         {
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+
             if (user == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
                 return false;
+            }
 
             var project = await db.Projects.FirstOrDefaultAsync(x => x.Id == projectId);
 
             if (project == null)
+            {
+                _code = ControllerErrorCode.ProjectNotFound;
                 return false;
+            }
 
             var role = await db.Roles.AsNoTracking().FirstOrDefaultAsync(x=> x.Project.Id == projectId && x.User.Id == user.Id);
 
-            if (role == null)
+            if (role == null || role.Type != ProjectUserRole.Owner)
+            {
+                _code = ControllerErrorCode.PermissionsDenied;
                 return false;
-
-            if (role.Type != ProjectUserRole.Owner)
-                return false;
+            }
             
             db.Projects.Remove(project);
 
@@ -73,10 +105,15 @@ namespace Scheme.Services
             return true;
         }
 
-        public static async Task<Project> CreateProject(this ProjectContext db, User user, string projectName)
+        public static async Task<Project> CreateProject(this ProjectContext db, string userEmail, string projectName)
         {
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+
             if (user == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
                 return null;
+            }
 
             var project = new Project
             {
@@ -98,6 +135,29 @@ namespace Scheme.Services
             await db.SaveChangesAsync();
 
             return project;
+        }
+
+        public static async Task<IEnumerable<Project>> GetProjects(this ProjectContext db, string userEmail)
+        {
+            var user = await db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+
+            if (user == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
+                return null;
+            }
+
+            var roles = await db.Roles.AsNoTracking().Include(x => x.Project).Where(x => x.User.Id == user.Id).ToListAsync();
+
+            if (roles == null)
+            {
+                _code = ControllerErrorCode.PermissionsDenied;
+                return null;
+            }
+
+            var projects = roles.Select(x => x.Project);
+
+            return projects;
         }
     }
 }

@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Scheme.Models
+namespace Scheme.Tools.Extension_Methods
 {
-    public enum AccountErrorMessages
+    public class ColumnContextExtensions
     {
-        OK,
-        NotConfirmed,
-        NotFound
+
     }
 }

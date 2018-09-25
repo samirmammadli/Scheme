@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 
 namespace Scheme.Tools
 {
+
+    //TODO:
     public class NotificationDTO
     {
         public string Message { get; set; }
@@ -19,12 +21,5 @@ namespace Scheme.Tools
             _action = action;
             _db = db;
         }
-
-        //public override string ToString()
-        //{
-        //    _notification.IsSended = true; 
-        //    _db.SaveChanges();
-        //    return $"{_notification.Date} {_notification.From.Name} {_notification.To.Name}";
-        //}
     }
 }
