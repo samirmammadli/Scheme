@@ -7,7 +7,6 @@ namespace Scheme.Models
 {
     public enum ControllerErrorCode
     {
-        OK,
         NotConfirmed,
         UserNotFound,
         ProjectNotFound,
