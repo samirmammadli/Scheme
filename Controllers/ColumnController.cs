@@ -24,7 +24,8 @@ namespace Scheme.Controllers
             _db = db;
         }
 
-        public async Task<IActionResult> GetColumns(int projectId)
+        [Route("getall")]
+        public async Task<IActionResult> GetColumns([FromBody]int projectId)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ControllerErrorCode.WrongInputData);
