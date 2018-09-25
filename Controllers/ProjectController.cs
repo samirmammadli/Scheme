@@ -38,7 +38,7 @@ namespace Scheme.Controllers
             if (project == null)
                 return BadRequest("Wrong information!");
 
-            return Ok(project.AdaptForOutput());
+            return Ok(project.GetDTO());
         }
 
         [HttpPost("delete/project")]
@@ -86,7 +86,7 @@ namespace Scheme.Controllers
             if (projects == null)
                 return BadRequest(_db.Projects.GetError());
 
-            return Ok(projects.AdaptForOutput());
+            return Ok(projects.GetDTO());
         }
     }
 }

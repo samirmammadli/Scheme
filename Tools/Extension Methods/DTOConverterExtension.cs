@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Scheme.OutputDataConvert
 {
-    public static class EntityDataConverter
+    public static class DTOConverterExtension
     {
-        public static ProjectOutput AdaptForOutput(this Project project)
+        public static ProjectOutput GetDTO(this Project project)
         {
             if (project == null)
                 return null;
@@ -23,7 +23,7 @@ namespace Scheme.OutputDataConvert
             return projectOutput;
         }
 
-        public static IEnumerable<ProjectOutput> AdaptForOutput(this IEnumerable<Project> projects)
+        public static IEnumerable<ProjectOutput> GetDTO(this IEnumerable<Project> projects)
         {
             if (projects == null)
                 return null;
@@ -33,13 +33,13 @@ namespace Scheme.OutputDataConvert
             foreach (var item in projects)
             {
                 if (item != null)
-                    projectsOutput.Add(AdaptForOutput(item));
+                    projectsOutput.Add(GetDTO(item));
             }
 
             return projectsOutput;
         }
 
-        public static BacklogOutput AdaptForOutput(this Backlog backlog)
+        public static BacklogOutput GetDTO(this Backlog backlog)
         {
             if (backlog == null)
                 return null;
@@ -54,7 +54,7 @@ namespace Scheme.OutputDataConvert
             return backlogOutput;
         }
 
-        public static IEnumerable<BacklogOutput> AdaptForOutput(this IEnumerable<Backlog> backlogs)
+        public static IEnumerable<BacklogOutput> GetDTO(this IEnumerable<Backlog> backlogs)
         {
             if (backlogs == null)
                 return null;
@@ -64,13 +64,13 @@ namespace Scheme.OutputDataConvert
             foreach (var item in backlogs)
             {
                 if (item != null)
-                    backlogsOutput.Add(AdaptForOutput(item));
+                    backlogsOutput.Add(GetDTO(item));
             }
 
             return backlogsOutput;
         }
 
-        public static SprintOutput AdaptForOutput(this Sprint sprint)
+        public static SprintOutput GetDTO(this Sprint sprint)
         {
             if (sprint == null)
                 return null;
@@ -85,7 +85,7 @@ namespace Scheme.OutputDataConvert
             return backlogOutput;
         }
 
-        public static IEnumerable<SprintOutput> AdaptForOutput(this IEnumerable<Sprint> sprints)
+        public static IEnumerable<SprintOutput> GetDTO(this IEnumerable<Sprint> sprints)
         {
             if (sprints == null)
                 return null;
@@ -95,7 +95,7 @@ namespace Scheme.OutputDataConvert
             foreach (var item in sprints)
             {
                 if (item != null)
-                    sprintsOutput.Add(AdaptForOutput(item));
+                    sprintsOutput.Add(GetDTO(item));
             }
 
             return sprintsOutput;
