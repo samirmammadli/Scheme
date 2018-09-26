@@ -17,11 +17,11 @@ namespace Scheme.Services
             return _code;
         }
 
-        public static async Task<bool> AddUserToProjectAsync(this ProjectContext db, string fromEmail, AddUserToProjectForm from)
+        public static async Task<bool> AddUserToProjectAsync(this ProjectContext db, string fromEmail, AddUserToProjectForm form)
         {
             var fromUser = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(fromEmail, StringComparison.OrdinalIgnoreCase));
 
-            var toUser = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(from.UserEmail, StringComparison.OrdinalIgnoreCase));
+            var toUser = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(form.UserEmail, StringComparison.OrdinalIgnoreCase));
 
             if (fromUser == null || toUser == null)
             {
@@ -29,7 +29,7 @@ namespace Scheme.Services
                 return false;
             }
 
-            var project = await db.Projects.FirstOrDefaultAsync(x => x.Id == from.ProjectId);
+            var project = await db.Projects.FirstOrDefaultAsync(x => x.Id == form.ProjectId);
 
             if (project == null)
             {
@@ -39,30 +39,22 @@ namespace Scheme.Services
 
             var fromUserRole = db.Roles.AsNoTracking().FirstOrDefault(x => x.User.Id == fromUser.Id && x.Project.Id == project.Id);
 
-            var toUserRole = db.Roles.FirstOrDefault(x => x.Project.Id == from.ProjectId && x.User.Id == toUser.Id);
+            var toUserRole = db.Roles.FirstOrDefault(x => x.Project.Id == form.ProjectId && x.User.Id == toUser.Id);
 
-            if (fromUserRole == null || fromUserRole.Type >= from.Role)
+            if (fromUserRole == null || fromUserRole.Type != ProjectUserRole.ProjectManager)
             {
                 _code = ControllerErrorCode.PermissionsDenied;
                 return false;
             }
 
             if (toUserRole != null)
-            {
-                if (fromUserRole.Type >= toUserRole.Type)
-                {
-                    _code = ControllerErrorCode.PermissionsDenied;
-                    return false;
-                }
-                else
                     db.Remove(toUserRole);
-            }
 
             var newRole = new Role()
             {
                 Project = project,
                 User = toUser,
-                Type = from.Role
+                Type = form.Role
             };
 
             await db.Roles.AddAsync(newRole);
@@ -92,7 +84,7 @@ namespace Scheme.Services
 
             var role = await db.Roles.AsNoTracking().FirstOrDefaultAsync(x=> x.Project.Id == projectId && x.User.Id == user.Id);
 
-            if (role == null || role.Type != ProjectUserRole.Owner)
+            if (role == null || role.Type != ProjectUserRole.ProjectManager)
             {
                 _code = ControllerErrorCode.PermissionsDenied;
                 return false;
@@ -123,7 +115,7 @@ namespace Scheme.Services
 
             var role = new Role
             {
-                Type = ProjectUserRole.Owner,
+                Type = ProjectUserRole.ProjectManager,
                 Project = project,
                 User = user
             };

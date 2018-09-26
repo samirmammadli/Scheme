@@ -18,6 +18,7 @@ namespace Scheme.Entities
         public DbSet<Role> Roles { get; set; }
         public DbSet<Sprint> Sprints { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<ForgotPassCode> ForgotCodes { get; set; }
         public DbSet<VerificationCode> VerificationCodes {get;set;}
 
         public ProjectContext(DbContextOptions<ProjectContext> options)
@@ -34,6 +35,7 @@ namespace Scheme.Entities
 
             modelBuilder.Entity<Column>().HasOne<Project>().WithMany(x => x.Columns).OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<Card>().HasOne<Column>().WithMany(x => x.Cards).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<User>().HasMany<VerificationCode>().WithOne(x => x.User).OnDelete(DeleteBehavior.Cascade);
 
 
             #region

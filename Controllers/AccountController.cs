@@ -11,6 +11,7 @@ using Scheme.Services.MailService;
 using Microsoft.AspNetCore.Authorization;
 using Scheme.Services.TokenService;
 using Scheme.OutputDataConvert;
+using Scheme.InputForms;
 
 namespace Scheme.Controllers
 {
@@ -143,10 +144,47 @@ namespace Scheme.Controllers
             return Ok(token);
         }
 
+        [Route("forgot")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordForm form)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(form.Email, StringComparison.OrdinalIgnoreCase));
+
+            if (user == null)
+                return BadRequest(ControllerErrorCode.UserNotFound);
+
+            var code = await _db.ForgotCodes.FirstOrDefaultAsync(x => x.User == user);
+
+            if (code != null)
+                _db.ForgotCodes.Remove(code);
+
+            _generator.GenerateCode(1);
+
+            var newCode = new ForgotPassCode
+            {
+                User = user,
+                Code = _generator.Code,
+                ExpireDate = _generator.ExpireDate
+            };
+
+            await _db.ForgotCodes.AddAsync(newCode);
+
+            await _db.SaveChangesAsync();
+
+            var msg = ComposeMessage(user.Email, "Forgot Password", $@"Your reset code: <b>{_generator.Code}</b>");
+
+            await _sender.SendAsync(msg);
+
+            return Ok("Success");
+        }
+
         [HttpPost("resend")]
         public async Task<IActionResult> ResendCode([FromBody] string mail)
         {
-            if (!ModelState.IsValid) return BadRequest("Wrong data");
+            if (!ModelState.IsValid)
+                return BadRequest(ControllerErrorCode.WrongInputData);
 
             var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(mail, StringComparison.OrdinalIgnoreCase));
 
@@ -154,7 +192,7 @@ namespace Scheme.Controllers
                 return NotFound();
 
             if (user.IsConfirmed)
-                return BadRequest("Your account has already been confirmed!");
+                return BadRequest(ControllerErrorCode.AlradyConfirmed);
 
             await SendMailAndGenerateCode(user);
 
@@ -180,20 +218,20 @@ namespace Scheme.Controllers
 
             await _db.SaveChangesAsync();
 
-            var msg = ConfirmaionMessage(_generator.Code, user.Email);
+            var msg = ComposeMessage(user.Email, "Registration Confirmation", $@"Your verification code: <b>{_generator.Code}</b>");
 
             await _sender.SendAsync(msg);
         }
 
         [NonAction]
-        private MailMessage ConfirmaionMessage(int code, string address)
+        private MailMessage ComposeMessage(string address, string subject, string message)
         {
             var mail = new MailMessage
             {
                 IsBodyHtml = true,
                 From = new MailAddress("samir.itstep@gmail.com", "Samir Mammadli"),
-                Subject = "Get your code",
-                Body = $@"Your verification code: <b>{code}</b>"
+                Subject = subject,
+                Body = message
             };
 
             mail.To.Add(new MailAddress(address));
