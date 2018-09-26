@@ -63,7 +63,7 @@ namespace Scheme.Controllers
             return Ok(token);
         }
 
-        [HttpPost("register")]
+        [HttpPost("registration")]
         public async Task<IActionResult> Register([FromBody] RegistrationForm model)
         {
             if (!ModelState.IsValid || model == null) return BadRequest();
