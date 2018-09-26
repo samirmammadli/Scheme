@@ -229,7 +229,7 @@ namespace Scheme.Controllers
                 return NotFound();
 
             if (user.IsConfirmed)
-                return BadRequest(ControllerErrorCode.AlradyConfirmed);
+                return BadRequest(ControllerErrorCode.AlreadyConfirmed);
 
             await SendMailAndGenerateCode(user);
 

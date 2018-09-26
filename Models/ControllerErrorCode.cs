@@ -9,7 +9,7 @@ namespace Scheme.Models
     {
         NotConfirmed,
         UserNotFound,
-        AlradyConfirmed,
+        AlreadyConfirmed,
         ProjectNotFound,
         WrongInputData,
         PermissionsDenied,
