@@ -217,7 +217,7 @@ namespace Scheme.Controllers
         }
 
         [HttpPost("resend")]
-        public async Task<IActionResult> ResendCode([FromBody] string mail)
+        public async Task<IActionResult> ResendCode([FromBody] string Email)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ControllerErrorCode.WrongInputData);
