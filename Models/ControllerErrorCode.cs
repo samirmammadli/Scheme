@@ -14,6 +14,7 @@ namespace Scheme.Models
         WrongInputData,
         PermissionsDenied,
         WrongRegCode,
-        ExpiredCode
+        ExpiredCode,
+        EmailAlreadyExists
     }
 }

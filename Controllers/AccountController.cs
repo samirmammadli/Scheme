@@ -69,7 +69,7 @@ namespace Scheme.Controllers
             if (!ModelState.IsValid || model == null) return BadRequest();
 
             if (await _db.Users.AnyAsync(x => x.Email.Equals(model.Email, StringComparison.OrdinalIgnoreCase)))
-                return BadRequest("This Email is alrady exist!");
+                return BadRequest(ControllerErrorCode.EmailAlreadyExists);
 
             var cryptoProvider = new CryptographyProcessor();
 
@@ -85,7 +85,6 @@ namespace Scheme.Controllers
                 Name = model.Name,
                 SurnName = model.Surname
             };
-
 
             await _db.Users.AddAsync(newUser);
 
@@ -116,20 +115,23 @@ namespace Scheme.Controllers
         public async Task<IActionResult> RegistrationCodeCheck([FromBody] RegCodeCheckForm form)
         {
             if (!ModelState.IsValid)
-                return BadRequest("Wrong data");
+                return BadRequest(ControllerErrorCode.WrongInputData);
 
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(form.Email, StringComparison.OrdinalIgnoreCase));
 
             if (user == null)
-                return NotFound("User not found!");
+                return NotFound(ControllerErrorCode.UserNotFound);
 
             if (user.IsConfirmed)
-                return BadRequest("Your account has alrady been confirmed!");
+                return BadRequest(ControllerErrorCode.NotConfirmed);
 
             var record = await _db.VerificationCodes.FirstOrDefaultAsync(x => x.Code == form.Code && x.User.Id == user.Id);
 
-            if (record == null || record.Expires <= DateTime.UtcNow)
-                return BadRequest("Wrong code or code is expired!");
+            if (record == null )
+                return BadRequest(ControllerErrorCode.WrongRegCode);
+
+            if (record.Expires <= DateTime.UtcNow)
+                return BadRequest(ControllerErrorCode.ExpiredCode);
 
             var token = await _token.GetTokenAsync(user);
 
