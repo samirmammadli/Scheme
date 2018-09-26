@@ -222,7 +222,7 @@ namespace Scheme.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ControllerErrorCode.WrongInputData);
 
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(mail, StringComparison.OrdinalIgnoreCase));
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(Email, StringComparison.OrdinalIgnoreCase));
 
             if (user == null)
                 return NotFound();
