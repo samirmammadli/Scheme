@@ -181,7 +181,7 @@ namespace Scheme.Controllers
 
 
         [Route("password/forgot")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordForm form)
+        public async Task<IActionResult> ForgotPassword([FromBody] EmailInputForm form)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -217,12 +217,12 @@ namespace Scheme.Controllers
         }
 
         [HttpPost("resend")]
-        public async Task<IActionResult> ResendCode([FromBody] string Email)
+        public async Task<IActionResult> ResendCode([FromBody] EmailInputForm form)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ControllerErrorCode.WrongInputData);
 
-            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(Email, StringComparison.OrdinalIgnoreCase));
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(form.Email, StringComparison.OrdinalIgnoreCase));
 
             if (user == null)
                 return NotFound();

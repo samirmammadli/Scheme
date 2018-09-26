@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Scheme.InputForms
 {
-    public class ForgotPasswordForm
+    public class EmailInputForm
     {
         [Required(ErrorMessage = "Email field is empty!")]
         [EmailAddress(ErrorMessage = "Wrong Email address!")]
