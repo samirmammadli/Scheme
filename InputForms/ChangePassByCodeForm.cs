@@ -9,6 +9,10 @@ namespace Scheme.InputForms
     public class ChangePassByCodeForm
     {
         [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
         public int Code { get; set; }
 
         [Required(ErrorMessage = "Password field is empty!")]

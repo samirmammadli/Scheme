@@ -144,7 +144,43 @@ namespace Scheme.Controllers
             return Ok(token);
         }
 
-        [Route("forgot")]
+        [Route("password/reset")]
+        public async Task<IActionResult> ResetPassword([FromBody] ChangePassByCodeForm form)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ControllerErrorCode.WrongInputData);
+
+            var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(form.Email, StringComparison.OrdinalIgnoreCase));
+
+            if (user == null)
+                return BadRequest(ControllerErrorCode.UserNotFound);
+
+            var code = await _db.ForgotCodes.FirstOrDefaultAsync(x => x.Code == form.Code);
+
+            if (code == null)
+                return BadRequest(ControllerErrorCode.WrongRegCode);
+
+            if (code.ExpireDate < DateTime.UtcNow)
+                return BadRequest(ControllerErrorCode.ExpiredCode);
+
+            var cryptoProvider = new CryptographyProcessor();
+
+            var salt = cryptoProvider.CreateSalt(AuthOptions.SaltSize);
+
+            var passHash = cryptoProvider.GenerateHash(form.Password, salt);
+
+            user.PassHash = passHash;
+
+            user.Salt = salt;
+
+            await _db.SaveChangesAsync();
+
+            return Ok();
+
+        }
+
+
+        [Route("password/forgot")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordForm form)
         {
             if (!ModelState.IsValid)

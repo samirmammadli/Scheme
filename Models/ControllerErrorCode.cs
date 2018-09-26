@@ -12,6 +12,8 @@ namespace Scheme.Models
         AlradyConfirmed,
         ProjectNotFound,
         WrongInputData,
-        PermissionsDenied
+        PermissionsDenied,
+        WrongRegCode,
+        ExpiredCode
     }
 }
