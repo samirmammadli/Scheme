@@ -117,5 +117,34 @@ namespace Scheme.Tools.Extension_Methods
 
             return true;
         }
+
+        public async static Task<IEnumerable<Sprint>> GetSprints(this ProjectContext db, string userEmail, GetSprintsForm form)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+
+            if (user == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
+                return null;
+            }
+
+            var role = await db.Roles.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User == user);
+
+            if (role == null)
+            {
+                _code = ControllerErrorCode.PermissionsDenied;
+                return null;
+            }
+
+            var sprints = await db.Sprints.Where(x => x.Project.Id == form.ProjectId).ToListAsync();
+
+            if (sprints == null)
+            {
+                _code = ControllerErrorCode.SprintNotFound;
+                return null;
+            }
+
+            return sprints;
+        }
     }
 }

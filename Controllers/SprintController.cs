@@ -74,19 +74,19 @@ namespace Scheme.Controllers
         }
 
         [Route("get_all")]
-        public async Task<IActionResult> GetSprints([FromBody] DeleteSprintForm form)
+        public async Task<IActionResult> GetSprints([FromBody] GetSprintsForm form)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ControllerErrorCode.WrongInputData);
 
             var email = User.Identity.Name;
 
-            var isSuccess = await _db.RemoveSprint(email, form);
+            var sprints = await _db.GetSprints(email, form);
 
-            if (!isSuccess)
+            if (sprints == null)
                 return BadRequest(_db.Sprints.GetError());
 
-            return Ok();
+            return Ok(sprints.GetDTO());
         }
     }
 }
