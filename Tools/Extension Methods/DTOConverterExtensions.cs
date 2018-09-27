@@ -103,5 +103,37 @@ namespace Scheme.OutputDataConvert
 
             return columnsOutput;
         }
+
+        public static CardOutput GetDTO(this Card card)
+        {
+            if (card == null)
+                return null;
+
+            var columnOutput = new CardOutput
+            {
+                Id = card.Id,
+                Text = card.Text,
+                ProjectId = card.Column.Project.Id,
+                SprintId = card.Column.Sprint.Id
+            };
+
+            return columnOutput;
+        }
+
+        public static IEnumerable<CardOutput> GetDTO(this IEnumerable<Card> cards)
+        {
+            if (cards == null)
+                return null;
+
+            var cardsOutput = new List<CardOutput>();
+
+            foreach (var item in cards)
+            {
+                if (item != null)
+                    cardsOutput.Add(GetDTO(item));
+            }
+
+            return cardsOutput;
+        }
     }
 }

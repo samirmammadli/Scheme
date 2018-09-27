@@ -19,5 +19,8 @@ namespace Scheme.InputForms.Column
 
         [Required]
         public int ColumnId { get; set; }
+
+        [Required]
+        public string Name { get; set; }
     }
 }

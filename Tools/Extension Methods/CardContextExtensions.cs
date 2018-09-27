@@ -1,185 +1,185 @@
-﻿//using Microsoft.EntityFrameworkCore;
-//using Scheme.Entities;
-//using Scheme.InputForms.Column;
-//using Scheme.Models;
-//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
+using Scheme.Entities;
+using Scheme.InputForms.Column;
+using Scheme.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-//namespace Scheme.Tools.Extension_Methods
-//{
-//    public static class CardContextExtensions
-//    {
-//        private static ControllerErrorCode _code;
+namespace Scheme.Tools.Extension_Methods
+{
+    public static class CardContextExtensions
+    {
+        private static ControllerErrorCode _code;
 
-//        public static ControllerErrorCode GetError(this DbSet<Card> columns)
-//        {
-//            return _code;
-//        }
+        public static ControllerErrorCode GetError(this DbSet<Card> columns)
+        {
+            return _code;
+        }
 
-//        public async static Task<IEnumerable<Card>> GetColumns(this ProjectContext db, string userEmail, GetColumnsForm form)
-//        {
-//            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+        public async static Task<IEnumerable<Card>> GetCards(this ProjectContext db, string userEmail, GetCardsForm form)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
 
-//            if (user == null)
-//            {
-//                _code = ControllerErrorCode.UserNotFound;
-//                return null;
-//            }
+            if (user == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
+                return null;
+            }
 
-//            var role = await db.Roles.AsNoTracking().FirstOrDefaultAsync(x => x.User == user && x.Project.Id == form.ProjectId);
+            var role = await db.Roles.AsNoTracking().FirstOrDefaultAsync(x => x.User == user && x.Project.Id == form.ProjectId);
 
-//            if (role == null)
-//            {
-//                _code = ControllerErrorCode.PermissionsDenied;
-//                return null;
-//            }
+            if (role == null)
+            {
+                _code = ControllerErrorCode.PermissionsDenied;
+                return null;
+            }
 
-//            var cards = await db.Columns.Where(x => x.Sprint.Id == form.SprintId).ToListAsync();
+            var cards = await db.Cards.Where(x => x.Column.Id == form.ColumnId).ToListAsync();
 
-//            if (cards == null)
-//            {
-//                _code = ControllerErrorCode.ColumnNotFound;
-//                return null;
-//            }
+            if (cards == null)
+            {
+                _code = ControllerErrorCode.CardNotFound;
+                return null;
+            }
 
-//            return cards;
-//        }
+            return cards;
+        }
 
-//        public async static Task<Column> GetColumn(this ProjectContext db, string userEmail, GetCardForm form)
-//        {
-//            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+        public async static Task<Card> GetCard(this ProjectContext db, string userEmail, GetCardsForm form)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
 
-//            if (user == null)
-//            {
-//                _code = ControllerErrorCode.UserNotFound;
-//                return null;
-//            }
+            if (user == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
+                return null;
+            }
 
-//            var role = await db.Roles.AsNoTracking().FirstOrDefaultAsync(x => x.User == user && x.Project.Id == form.ProjectId);
+            var role = await db.Roles.AsNoTracking().FirstOrDefaultAsync(x => x.User == user && x.Project.Id == form.ProjectId);
 
-//            if (role == null)
-//            {
-//                _code = ControllerErrorCode.PermissionsDenied;
-//                return null;
-//            }
+            if (role == null)
+            {
+                _code = ControllerErrorCode.PermissionsDenied;
+                return null;
+            }
 
-//            var column = await db.Columns.FirstOrDefaultAsync(x => x.Sprint.Id == form.SprintId);
+            var card = await db.Cards.FirstOrDefaultAsync(x => x.Column.Id == form.ColumnId);
 
-//            if (column == null)
-//            {
-//                _code = ControllerErrorCode.ColumnNotFound;
-//                return null;
-//            }
+            if (card == null)
+            {
+                _code = ControllerErrorCode.ColumnNotFound;
+                return null;
+            }
 
-//            return column;
-//        }
+            return card;
+        }
 
-//        public async static Task<bool> RemoveColumn(this ProjectContext db, string userEmail, RemoveColumnForm form)
-//        {
-//            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+        public async static Task<bool> RemoveCard(this ProjectContext db, string userEmail, RemoveCardForm form)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
 
-//            if (user == null)
-//            {
-//                _code = ControllerErrorCode.UserNotFound;
-//                return false;
-//            }
+            if (user == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
+                return false;
+            }
 
-//            var column = await db.Columns.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.Id == form.ColumnId);
+            var role = await db.Roles.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User == user);
 
-//            if (column == null)
-//            {
-//                _code = ControllerErrorCode.ColumnNotFound;
-//                return false;
-//            }
+            if (role == null || role.Type != ProjectUserRole.ProjectManager)
+            {
+                _code = ControllerErrorCode.PermissionsDenied;
+                return false;
+            }
 
-//            var role = await db.Roles.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User == user);
+            var card = await db.Cards.FirstOrDefaultAsync(x => x.Column.Id == form.ProjectId && x.Id == form.CardId);
 
-//            if (role == null || role.Type != ProjectUserRole.ProjectManager)
-//            {
-//                _code = ControllerErrorCode.PermissionsDenied;
-//                return false;
-//            }
+            if (card == null)
+            {
+                _code = ControllerErrorCode.ColumnNotFound;
+                return false;
+            }
 
-//            db.Columns.Remove(column);
+            db.Cards.Remove(card);
 
-//            await db.SaveChangesAsync();
+            await db.SaveChangesAsync();
 
-//            return true;
-//        }
+            return true;
+        }
 
-//        public async static Task<Column> AddColumn(this ProjectContext db, string userEmail, AddColumnForm form)
-//        {
-//            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+        public async static Task<Card> AddCard(this ProjectContext db, string userEmail, AddCardForm form)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
 
-//            if (user == null)
-//            {
-//                _code = ControllerErrorCode.UserNotFound;
-//                return null;
-//            }
+            if (user == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
+                return null;
+            }
 
-//            var sprint = await db.Sprints.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.Id == form.SprintId);
+            var role = await db.Roles.Include(y => y.Project).FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User == user);
 
-//            if (sprint == null)
-//            {
-//                _code = ControllerErrorCode.SprintNotFound;
-//                return null;
-//            }
+            if (role == null || role.Type != ProjectUserRole.ProjectManager)
+            {
+                _code = ControllerErrorCode.PermissionsDenied;
+                return null;
+            }
 
-//            var role = await db.Roles.Include(y => y.Project).FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User == user);
+            var column = await db.Columns.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.Id == form.ColumnId);
 
-//            if (role == null || role.Type != ProjectUserRole.ProjectManager)
-//            {
-//                _code = ControllerErrorCode.PermissionsDenied;
-//                return null;
-//            }
+            if (column == null)
+            {
+                _code = ControllerErrorCode.SprintNotFound;
+                return null;
+            }
 
-//            var column = new Column
-//            {
-//                Name = form.ColumnName,
-//                Project = role.Project,
-//                Sprint = sprint
-//            };
 
-//            await db.Columns.AddAsync(column);
+            var card = new Card
+            {
+                Column = column,
+                Text = form.Name
+            };
 
-//            await db.SaveChangesAsync();
+            await db.Cards.AddAsync(card);
 
-//            return column;
-//        }
+            await db.SaveChangesAsync();
 
-//        public async static Task<bool> ChangeColumnName(this ProjectContext db, string userEmail, ChangeColumnNameForm form)
-//        {
-//            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+            return card;
+        }
 
-//            if (user == null)
-//            {
-//                _code = ControllerErrorCode.UserNotFound;
-//                return false;
-//            }
+        public async static Task<bool> ChangeColumnName(this ProjectContext db, string userEmail, ChangeColumnNameForm form)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
 
-//            var column = await db.Columns.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.Id == form.ColumnId);
+            if (user == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
+                return false;
+            }
 
-//            if (column == null)
-//            {
-//                _code = ControllerErrorCode.ColumnNotFound;
-//                return false;
-//            }
+            var column = await db.Columns.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.Id == form.ColumnId);
 
-//            var role = await db.Roles.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User == user);
+            if (column == null)
+            {
+                _code = ControllerErrorCode.ColumnNotFound;
+                return false;
+            }
 
-//            if (role == null || role.Type != ProjectUserRole.ProjectManager)
-//            {
-//                _code = ControllerErrorCode.PermissionsDenied;
-//                return false;
-//            }
+            var role = await db.Roles.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User == user);
 
-//            column.Name = form.NewName;
+            if (role == null || role.Type != ProjectUserRole.ProjectManager)
+            {
+                _code = ControllerErrorCode.PermissionsDenied;
+                return false;
+            }
 
-//            await db.SaveChangesAsync();
+            column.Name = form.NewName;
 
-//            return true;
-//        }
-//    }
-//}
+            await db.SaveChangesAsync();
+
+            return true;
+        }
+    }
+}
