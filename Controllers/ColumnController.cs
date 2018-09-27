@@ -27,8 +27,7 @@ namespace Scheme.Controllers
             _db = db;
         }
 
-        [Route("/")]
-        public async Task<IActionResult> GetColumn([FromBody] GetCardForm form)
+        public async Task<IActionResult> GetColumn([FromBody] GetColumnForm form)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ControllerErrorCode.WrongInputData);
