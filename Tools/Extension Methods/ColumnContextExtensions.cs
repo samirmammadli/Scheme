@@ -48,7 +48,7 @@ namespace Scheme.Tools.Extension_Methods
             return columns;
         }
 
-        public async static Task<Column> GetColumn(this ProjectContext db, string userEmail, GetColumnForm form)
+        public async static Task<Column> GetColumn(this ProjectContext db, string userEmail, GetCardForm form)
         {
             var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
 
