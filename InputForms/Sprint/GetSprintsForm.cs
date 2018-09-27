@@ -6,15 +6,9 @@ using System.Threading.Tasks;
 
 namespace Scheme.InputForms.Sprint
 {
-    public class AddSprintForm
+    public class GetSprintsForm
     {
         [Required]
-        public string SprintName { get; set; }
-
-        [Required]
         public int ProjectId { get; set; }
-
-        [Required]
-        public DateTime ExprieDate { get; set; }
     }
 }

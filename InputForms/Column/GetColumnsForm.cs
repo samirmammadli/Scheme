@@ -4,14 +4,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Scheme.InputForms
+namespace Scheme.InputForms.Column
 {
-    public class AddColumnForm
+    public class GetColumnsForm
     {
         [Required]
-        public string ColumnName { get; set; }
+        public int ProjectId { get; set; }
 
         [Required]
-        public int ProjectId { get; set; }
+        public int SprintId { get; set; }
     }
 }

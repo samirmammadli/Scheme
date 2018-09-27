@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Scheme.Entities;
 using Scheme.InputForms;
+using Scheme.InputForms.Column;
 using Scheme.Models;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace Scheme.Tools.Extension_Methods
             return _code;
         }
 
-        public async static Task<IEnumerable<Column>> GetColumns(this ProjectContext db, string userEmail, int projectId)
+        public async static Task<IEnumerable<Column>> GetColumns(this ProjectContext db, string userEmail, GetColumnsForm form)
         {
             var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
 
@@ -28,15 +29,7 @@ namespace Scheme.Tools.Extension_Methods
                 return null;
             }
 
-            var project = await db.Projects.FirstOrDefaultAsync(x => x.Id == projectId);
-
-            if (project == null)
-            {
-                _code = ControllerErrorCode.ProjectNotFound;
-                return null;
-            }
-
-            var role = await db.Roles.AsNoTracking().FirstOrDefaultAsync(x => x.User == user && x.Project == project);
+            var role = await db.Roles.AsNoTracking().FirstOrDefaultAsync(x => x.User == user && x.Project.Id == form.ProjectId);
 
             if (role == null)
             {
@@ -44,10 +37,44 @@ namespace Scheme.Tools.Extension_Methods
                 return null;
             }
 
-            var columns = await db.Columns.AsNoTracking().Where(x => x.Project == project).ToListAsync();
+            var columns = await db.Columns.Where(x => x.Sprint.Id == form.SprintId).ToListAsync();
+
+            if (columns == null)
+            {
+                _code = ControllerErrorCode.ColumnNotFound;
+                return null;
+            }
 
             return columns;
+        }
 
+        public async static Task<Column> GetColumn(this ProjectContext db, string userEmail, GetColumnForm form)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+
+            if (user == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
+                return null;
+            }
+
+            var role = await db.Roles.AsNoTracking().FirstOrDefaultAsync(x => x.User == user && x.Project.Id == form.ProjectId);
+
+            if (role == null)
+            {
+                _code = ControllerErrorCode.PermissionsDenied;
+                return null;
+            }
+
+            var column = await db.Columns.FirstOrDefaultAsync(x => x.Sprint.Id == form.SprintId);
+
+            if (column == null)
+            {
+                _code = ControllerErrorCode.ColumnNotFound;
+                return null;
+            }
+
+            return column;
         }
 
         public async static Task<bool> RemoveColumn(this ProjectContext db, string userEmail, RemoveColumnForm form)
@@ -93,6 +120,14 @@ namespace Scheme.Tools.Extension_Methods
                 return null;
             }
 
+            var sprint = await db.Sprints.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.Id == form.SprintId);
+
+            if (sprint == null)
+            {
+                _code = ControllerErrorCode.SprintNotFound;
+                return null;
+            }
+
             var role = await db.Roles.Include(y => y.Project).FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User == user);
 
             if (role == null || role.Type != ProjectUserRole.ProjectManager)
@@ -105,13 +140,47 @@ namespace Scheme.Tools.Extension_Methods
             {
                 Name = form.ColumnName,
                 Project = role.Project,
-
+                Sprint = sprint
             };
+
+            await db.Columns.AddAsync(column);
 
             await db.SaveChangesAsync();
 
-            return null;
+            return column;
         }
 
+        public async static Task<bool> ChangeColumnName(this ProjectContext db, string userEmail, ChangeColumnNameForm form)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+
+            if (user == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
+                return false;
+            }
+
+            var column = await db.Columns.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.Id == form.ColumnId);
+
+            if (column == null)
+            {
+                _code = ControllerErrorCode.ColumnNotFound;
+                return false;
+            }
+
+            var role = await db.Roles.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User == user);
+
+            if (role == null || role.Type != ProjectUserRole.ProjectManager)
+            {
+                _code = ControllerErrorCode.PermissionsDenied;
+                return false;
+            }
+
+            column.Name = form.NewName;
+
+            await db.SaveChangesAsync();
+
+            return true;
+        }
     }
 }

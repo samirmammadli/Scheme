@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Scheme.Entities;
-using Scheme.InputForms;
+using Scheme.InputForms.Sprint;
 using Scheme.Models;
 using Scheme.OutputDataConvert;
 using Scheme.Tools.Extension_Methods;
@@ -59,6 +59,22 @@ namespace Scheme.Controllers
 
         [Route("change_name")]
         public async Task<IActionResult> ChangeName([FromBody] DeleteSprintForm form)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ControllerErrorCode.WrongInputData);
+
+            var email = User.Identity.Name;
+
+            var isSuccess = await _db.RemoveSprint(email, form);
+
+            if (!isSuccess)
+                return BadRequest(_db.Sprints.GetError());
+
+            return Ok();
+        }
+
+        [Route("get_all")]
+        public async Task<IActionResult> GetSprints([FromBody] DeleteSprintForm form)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ControllerErrorCode.WrongInputData);

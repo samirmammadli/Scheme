@@ -80,7 +80,9 @@ namespace Scheme.OutputDataConvert
             var columnOutput = new ColumnOutput
             {
                 Id = column.Id,
-                Name = column.Name
+                Name = column.Name,
+                ProjectId = column.Project.Id,
+                SprintId = column.Sprint.Id
             };
 
             return columnOutput;

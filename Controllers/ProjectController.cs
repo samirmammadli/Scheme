@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Scheme.Entities;
+using Scheme.InputForms.Account;
 using Scheme.Models;
 using Scheme.OutputDataConvert;
 using Scheme.Services;
@@ -58,14 +59,14 @@ namespace Scheme.Controllers
         }
 
         [HttpPost("add/user")]
-        public async Task<IActionResult> AddUserToProject([FromBody] AddUserToProjectForm from)
+        public async Task<IActionResult> AddUserToProject([FromBody] AddUserToProjectForm form)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             var email = User.Identity.Name;
 
-            var isSuccess = await _db.AddUserToProjectAsync(email, from);
+            var isSuccess = await _db.AddUserToProjectAsync(email, form);
 
             if (!isSuccess)
                 return BadRequest(_db.Projects.GetError());

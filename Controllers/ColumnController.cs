@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Scheme.Entities;
 using Scheme.InputForms;
+using Scheme.InputForms.Column;
 using Scheme.Models;
 using Scheme.OutputDataConvert;
 using Scheme.Tools.Extension_Methods;
@@ -26,15 +27,31 @@ namespace Scheme.Controllers
             _db = db;
         }
 
-        [Route("get_all")]
-        public async Task<IActionResult> GetColumns([FromBody]int projectId)
+        [Route("/")]
+        public async Task<IActionResult> GetColumn([FromBody] GetColumnForm form)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ControllerErrorCode.WrongInputData);
 
             var email = User.Identity.Name;
 
-            var columns = await _db.GetColumns(email, projectId);
+            var columns = await _db.GetColumn(email, form);
+
+            if (columns == null)
+                return BadRequest(_db.Columns.GetError());
+
+            return Ok(columns.GetDTO());
+        }
+
+        [Route("get_all")]
+        public async Task<IActionResult> GetColumns([FromBody] GetColumnsForm form)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ControllerErrorCode.WrongInputData);
+
+            var email = User.Identity.Name;
+
+            var columns = await _db.GetColumns(email, form);
 
             if (columns == null)
                 return BadRequest(_db.Columns.GetError());
@@ -49,7 +66,7 @@ namespace Scheme.Controllers
                 return BadRequest(ControllerErrorCode.WrongInputData);
 
             var email = User.Identity.Name;
-
+             
             var isSuccess = await _db.RemoveColumn(email, form);
 
             if (!isSuccess)
@@ -66,10 +83,26 @@ namespace Scheme.Controllers
 
             var email = User.Identity.Name;
 
-           // var isSuccess = await _db.RemoveColumn(email, columnForm);
+            var column = await _db.AddColumn(email, form);
 
-            //if (!isSuccess)
-            //    return BadRequest(_db.Columns.GetError());
+            if (column == null)
+                return BadRequest(_db.Columns.GetError());
+
+            return Ok(column.GetDTO());
+        }
+
+        [Route("change_name")]
+        public async Task<IActionResult> ChangeName([FromBody]ChangeColumnNameForm form)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ControllerErrorCode.WrongInputData);
+
+            var email = User.Identity.Name;
+
+            var isSuccess = await _db.ChangeColumnName(email, form);
+
+            if (!isSuccess)
+                return BadRequest(_db.Columns.GetError());
 
             return Ok();
         }

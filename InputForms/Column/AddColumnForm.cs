@@ -4,17 +4,17 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Scheme.InputForms.Sprint
+namespace Scheme.InputForms.Column
 {
-    public class AddSprintForm
+    public class AddColumnForm
     {
         [Required]
-        public string SprintName { get; set; }
+        public string ColumnName { get; set; }
 
         [Required]
         public int ProjectId { get; set; }
 
         [Required]
-        public DateTime ExprieDate { get; set; }
+        public int SprintId { get; set; }
     }
 }
