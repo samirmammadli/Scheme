@@ -149,7 +149,7 @@ namespace Scheme.Tools.Extension_Methods
             return card;
         }
 
-        public async static Task<bool> ChangeColumnName(this ProjectContext db, string userEmail, ChangeColumnNameForm form)
+        public async static Task<bool> ChangeCardName(this ProjectContext db, string userEmail, ChangeColumnNameForm form)
         {
             var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
 
