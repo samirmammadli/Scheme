@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Scheme.OutputDataConvert
 {
-    public static class DTOConverterExtension
+    public static class DTOConverterExtensions
     {
         public static ProjectOutput GetDTO(this Project project, ProjectUserRole role)
         {

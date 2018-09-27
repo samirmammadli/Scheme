@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Scheme.Entities;
 using Scheme.InputForms;
 using Scheme.Models;
@@ -14,62 +13,62 @@ using Scheme.Tools.Extension_Methods;
 
 namespace Scheme.Controllers
 {
-    [RequireHttps]
-    [Route("api/Column")]
+    [Produces("application/json")]
+    [Route("api/Sprint")]
     [Authorize]
-    public class ColumnController : Controller
+    public class SprintController : Controller
     {
         private ProjectContext _db;
 
-        public ColumnController(ProjectContext db)
+        public SprintController(ProjectContext db)
         {
             _db = db;
         }
 
-        [Route("get_all")]
-        public async Task<IActionResult> GetColumns([FromBody]int projectId)
+        [Route("add")]
+        public async Task<IActionResult> AddSprint([FromBody] AddSprintForm form)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ControllerErrorCode.WrongInputData);
 
             var email = User.Identity.Name;
 
-            var columns = await _db.GetColumns(email, projectId);
+            var sprint = await _db.AddSprintAsync(email, form);
 
-            if (columns == null)
-                return BadRequest(_db.Columns.GetError());
+            if (sprint == null)
+                return BadRequest(_db.Sprints.GetError());
 
-            return Ok(columns.GetDTO());
+            return Ok(sprint.GetDTO());
         }
 
-        [Route("remove")]
-        public async Task<IActionResult> RemoveColumn([FromBody]RemoveColumnForm form)
+        [Route("delete")]
+        public async Task<IActionResult> DeleteSprint([FromBody] DeleteSprintForm form)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ControllerErrorCode.WrongInputData);
 
             var email = User.Identity.Name;
 
-            var isSuccess = await _db.RemoveColumn(email, form);
+            var isSuccess = await _db.RemoveSprint(email, form);
 
             if (!isSuccess)
-                return BadRequest(_db.Columns.GetError());
+                return BadRequest(_db.Sprints.GetError());
 
             return Ok();
         }
 
-        [Route("add")]
-        public async Task<IActionResult> AddColumn([FromBody]AddColumnForm form)
+        [Route("change_name")]
+        public async Task<IActionResult> ChangeName([FromBody] DeleteSprintForm form)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ControllerErrorCode.WrongInputData);
 
             var email = User.Identity.Name;
 
-           // var isSuccess = await _db.RemoveColumn(email, columnForm);
+            var isSuccess = await _db.RemoveSprint(email, form);
 
-            //if (!isSuccess)
-            //    return BadRequest(_db.Columns.GetError());
+            if (!isSuccess)
+                return BadRequest(_db.Sprints.GetError());
 
             return Ok();
         }

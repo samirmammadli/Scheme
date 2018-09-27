@@ -16,6 +16,7 @@ namespace Scheme.Models
         WrongRegCode,
         ExpiredCode,
         EmailAlreadyExists,
+        SprintNotFound,
         ColumnNotFound, 
         CardNotFound
     }
