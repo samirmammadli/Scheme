@@ -38,7 +38,7 @@ namespace Scheme.Controllers
             if (project == null)
                 return BadRequest("Wrong information!");
 
-            return Ok(project.GetDTO());
+            return Ok(project.GetDTO(ProjectUserRole.ProjectManager));
         }
 
         [HttpPost("delete/project")]
@@ -71,22 +71,6 @@ namespace Scheme.Controllers
                 return BadRequest(_db.Projects.GetError());
 
             return Ok("Success!");
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetProjects()
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var email = User.Identity.Name;
-
-            var projects = await _db.GetProjects(email);
-
-            if (projects == null)
-                return BadRequest(_db.Projects.GetError());
-
-            return Ok(projects.GetDTO());
         }
     }
 }

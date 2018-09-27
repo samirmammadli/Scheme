@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Scheme.Entities;
+using Scheme.InputForms;
 using Scheme.Models;
 using System;
 using System.Collections.Generic;
@@ -48,5 +49,69 @@ namespace Scheme.Tools.Extension_Methods
             return columns;
 
         }
+
+        public async static Task<bool> RemoveColumn(this ProjectContext db, string userEmail, RemoveColumnForm form)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+
+            if (user == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
+                return false;
+            }
+
+            var column = await db.Columns.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.Id == form.ColumnId);
+
+            if (column == null)
+            {
+                _code = ControllerErrorCode.ColumnNotFound;
+                return false;
+            }
+
+            var role = await db.Roles.FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User == user);
+
+            if (role == null || role.Type != ProjectUserRole.ProjectManager)
+            {
+                _code = ControllerErrorCode.PermissionsDenied;
+                return false;
+            }
+
+            db.Columns.Remove(column);
+
+            await db.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async static Task<Column> AddColumn(this ProjectContext db, string userEmail, AddColumnForm form)
+        {
+            var user = await db.Users.FirstOrDefaultAsync(x => x.Email.Equals(userEmail, StringComparison.OrdinalIgnoreCase));
+
+            if (user == null)
+            {
+                _code = ControllerErrorCode.UserNotFound;
+                return null;
+            }
+
+            var role = await db.Roles.Include(y => y.Project).FirstOrDefaultAsync(x => x.Project.Id == form.ProjectId && x.User == user);
+
+            if (role == null || role.Type != ProjectUserRole.ProjectManager)
+            {
+                _code = ControllerErrorCode.PermissionsDenied;
+                return null;
+            }
+
+            var column = new Column
+            {
+                Name = form.ColumnName,
+                 Project = role.Project,
+                 
+            }
+
+            await db.SaveChangesAsync();
+
+            return true;
+        }
+
     }
 }

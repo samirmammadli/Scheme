@@ -1,4 +1,6 @@
-﻿using Scheme.Entities;
+﻿using Scheme.DTO;
+using Scheme.Entities;
+using Scheme.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +10,7 @@ namespace Scheme.OutputDataConvert
 {
     public static class DTOConverterExtension
     {
-        public static ProjectOutput GetDTO(this Project project)
+        public static ProjectOutput GetDTO(this Project project, ProjectUserRole role)
         {
             if (project == null)
                 return null;
@@ -17,26 +19,11 @@ namespace Scheme.OutputDataConvert
             {
                 Id = project.Id,
                 CreationDate = project.CreationDate,
-                Name = project.Name
+                Name = project.Name,
+                Role = role
             };
 
             return projectOutput;
-        }
-
-        public static IEnumerable<ProjectOutput> GetDTO(this IEnumerable<Project> projects)
-        {
-            if (projects == null)
-                return null;
-
-            var projectsOutput = new List<ProjectOutput>();
-
-            foreach (var item in projects)
-            {
-                if (item != null)
-                    projectsOutput.Add(GetDTO(item));
-            }
-
-            return projectsOutput;
         }
 
         public static BacklogOutput GetDTO(this Backlog backlog)
@@ -52,22 +39,6 @@ namespace Scheme.OutputDataConvert
             };
 
             return backlogOutput;
-        }
-
-        public static IEnumerable<BacklogOutput> GetDTO(this IEnumerable<Backlog> backlogs)
-        {
-            if (backlogs == null)
-                return null;
-
-            var backlogsOutput = new List<BacklogOutput>();
-
-            foreach (var item in backlogs)
-            {
-                if (item != null)
-                    backlogsOutput.Add(GetDTO(item));
-            }
-
-            return backlogsOutput;
         }
 
         public static SprintOutput GetDTO(this Sprint sprint)
@@ -99,6 +70,36 @@ namespace Scheme.OutputDataConvert
             }
 
             return sprintsOutput;
+        }
+
+        public static ColumnOutput GetDTO(this Column column)
+        {
+            if (column == null)
+                return null;
+
+            var columnOutput = new ColumnOutput
+            {
+                Id = column.Id,
+                Name = column.Name
+            };
+
+            return columnOutput;
+        }
+
+        public static IEnumerable<ColumnOutput> GetDTO(this IEnumerable<Column> columns)
+        {
+            if (columns == null)
+                return null;
+
+            var columnsOutput = new List<ColumnOutput>();
+
+            foreach (var item in columns)
+            {
+                if (item != null)
+                    columnsOutput.Add(GetDTO(item));
+            }
+
+            return columnsOutput;
         }
     }
 }

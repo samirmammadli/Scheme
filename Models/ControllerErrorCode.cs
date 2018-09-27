@@ -15,6 +15,8 @@ namespace Scheme.Models
         PermissionsDenied,
         WrongRegCode,
         ExpiredCode,
-        EmailAlreadyExists
+        EmailAlreadyExists,
+        ColumnNotFound, 
+        CardNotFound
     }
 }
