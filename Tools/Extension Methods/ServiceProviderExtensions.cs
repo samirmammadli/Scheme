@@ -22,7 +22,7 @@ namespace Scheme.Tools.Extensions
 
         public static void AddJWTBasedAuthorisation(this IServiceCollection services)
         {
-            services.AddScoped<ITokenAuthProvider, JWTBasedTokenProvider>();
+            services.AddSingleton<ITokenAuthProvider, JWTBasedTokenProvider>();
         }
     }
 }
