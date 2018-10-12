@@ -30,7 +30,7 @@ namespace Scheme
         {
             string connection = Configuration["ConnectionStrings:DefaultConnection"];
             services.AddDbContext<ProjectContext>(options =>
-                options.UseSqlServer(connection), ServiceLifetime.Singleton);
+                options.UseSqlServer(connection));
 
             services.AddJWTBasedAuthorisation();
 

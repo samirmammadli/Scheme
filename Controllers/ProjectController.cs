@@ -58,6 +58,19 @@ namespace Scheme.Controllers
             return Ok("Success!");
         }
 
+        [HttpGet("getall")]
+        public async Task<IActionResult> GetProjects()
+        {
+            var userEmail = User.Identity.Name;
+
+            var projects = await _db.GetProjects(userEmail);
+
+            if (projects == null)
+                return BadRequest(_db.Projects.GetError());
+
+            return Ok(projects.GetDTO());
+        }
+
         [HttpPost("add/user")]
         public async Task<IActionResult> AddUserToProject([FromBody] AddUserToProjectForm form)
         {

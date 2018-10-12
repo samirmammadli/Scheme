@@ -10,7 +10,7 @@ namespace Scheme.OutputDataConvert
 {
     public static class DTOConverterExtensions
     {
-        public static ProjectOutput GetDTO(this Project project, ProjectUserRole role)
+        public static ProjectOutput GetDTO(this Project project, ProjectUserRole? role = null)
         {
             if (project == null)
                 return null;
@@ -20,10 +20,26 @@ namespace Scheme.OutputDataConvert
                 Id = project.Id,
                 CreationDate = project.CreationDate,
                 Name = project.Name,
-                Role = role
+                Role = role == null ? project.Roles.FirstOrDefault().Type : (ProjectUserRole)role
             };
 
             return projectOutput;
+        }
+
+        public static IEnumerable<ProjectOutput> GetDTO(this IEnumerable<Project> projects)
+        {
+            if (projects == null)
+                return null;
+
+            var projectsOutput = new List<ProjectOutput>();
+
+            foreach (var item in projects)
+            {
+                if (item != null)
+                    projectsOutput.Add(GetDTO(item));
+            }
+
+            return projectsOutput;
         }
 
         public static BacklogOutput GetDTO(this Backlog backlog)

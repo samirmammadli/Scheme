@@ -35,7 +35,8 @@ namespace Scheme.Controllers
             _generator = generator;
         }
 
-        [HttpPost("login")]
+        [HttpPost]
+        [Route("login")]
         public async Task<IActionResult> Login([FromBody] LogInForm model)
         {
             if (!ModelState.IsValid || model == null)
@@ -63,7 +64,8 @@ namespace Scheme.Controllers
             return Ok(token);
         }
 
-        [HttpPost("registration")]
+        [HttpPost]
+        [Route("registration")]
         public async Task<IActionResult> Register([FromBody] RegistrationForm model)
         {
             if (!ModelState.IsValid || model == null) return BadRequest();
@@ -95,8 +97,9 @@ namespace Scheme.Controllers
             return Ok("Success!");
         }
 
-        [HttpPost("token/renew")]
+        [HttpPost]
         [Authorize]
+        [Route("token/renew/")]
         public async Task<IActionResult>RenewToken()
         {
             var email = User.Identity.Name;
@@ -111,7 +114,8 @@ namespace Scheme.Controllers
             return Ok(token);
         }
 
-        [HttpPost("registration/confirm")]
+        [HttpPost]
+        [Route("registration/confirm/")]
         public async Task<IActionResult> RegistrationCodeCheck([FromBody] RegCodeCheckForm form)
         {
             if (!ModelState.IsValid)
@@ -146,7 +150,8 @@ namespace Scheme.Controllers
             return Ok(token);
         }
 
-        [Route("password/reset")]
+        [HttpPost]
+        [Route("password/reset/")]
         public async Task<IActionResult> ResetPassword([FromBody] ChangePassByCodeForm form)
         {
             if (!ModelState.IsValid)
@@ -181,7 +186,8 @@ namespace Scheme.Controllers
 
         }
 
-        [Route("password/forgot")]
+        [HttpPost]
+        [Route("password/forgot/")]
         public async Task<IActionResult> ForgotPassword([FromBody] EmailInputForm form)
         {
             if (!ModelState.IsValid)
@@ -217,7 +223,8 @@ namespace Scheme.Controllers
             return Ok("Success");
         }
 
-        [HttpPost("registration/resend_code")]
+        [HttpPost]
+        [Route("registration/resend_code/")]
         public async Task<IActionResult> ResendCode([FromBody] EmailInputForm form)
         {
             if (!ModelState.IsValid)
