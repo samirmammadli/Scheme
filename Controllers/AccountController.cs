@@ -44,7 +44,7 @@ namespace Scheme.Controllers
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(model.Email, StringComparison.OrdinalIgnoreCase));
 
             if (user == null)
-                return BadRequest(ControllerErrorCode.UserNotFound);
+                return BadRequest(ControllerErrorCode.AccountOrPasswordWrong);
 
             var salt = user.Salt;
 
@@ -53,7 +53,7 @@ namespace Scheme.Controllers
             var cryptoProvider = new CryptographyProcessor();
 
             if (!cryptoProvider.AreEqual(model.Password, passHash, salt))
-                return BadRequest(ControllerErrorCode.UserNotFound);
+                return BadRequest(ControllerErrorCode.AccountOrPasswordWrong);
 
             if (!user.IsConfirmed)
                 return BadRequest(ControllerErrorCode.NotConfirmed);
@@ -120,7 +120,7 @@ namespace Scheme.Controllers
             var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email.Equals(form.Email, StringComparison.OrdinalIgnoreCase));
 
             if (user == null)
-                return NotFound(ControllerErrorCode.UserNotFound);
+                return NotFound(ControllerErrorCode.AccountNotFound);
 
             if (user.IsConfirmed)
                 return BadRequest(ControllerErrorCode.NotConfirmed);
@@ -155,7 +155,7 @@ namespace Scheme.Controllers
             var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(form.Email, StringComparison.OrdinalIgnoreCase));
 
             if (user == null)
-                return BadRequest(ControllerErrorCode.UserNotFound);
+                return BadRequest(ControllerErrorCode.AccountNotFound);
 
             var code = await _db.ForgotCodes.FirstOrDefaultAsync(x => x.Code == form.Code);
 
@@ -190,7 +190,7 @@ namespace Scheme.Controllers
             var user = await _db.Users.FirstOrDefaultAsync(x => x.Email.Equals(form.Email, StringComparison.OrdinalIgnoreCase));
 
             if (user == null)
-                return BadRequest(ControllerErrorCode.UserNotFound);
+                return BadRequest(ControllerErrorCode.AccountNotFound);
 
             var code = await _db.ForgotCodes.FirstOrDefaultAsync(x => x.User == user);
 

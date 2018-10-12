@@ -7,6 +7,8 @@ namespace Scheme.Models
 {
     public enum ControllerErrorCode
     {
+        AccountOrPasswordWrong,
+        AccountNotFound,
         NotConfirmed,
         UserNotFound,
         AlreadyConfirmed,
