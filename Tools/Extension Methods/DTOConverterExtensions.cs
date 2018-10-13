@@ -97,8 +97,7 @@ namespace Scheme.OutputDataConvert
             {
                 Id = column.Id,
                 Name = column.Name,
-                ProjectId = column.Project.Id,
-                SprintId = column.Sprint.Id
+                ProjectId = column.Project.Id
             };
 
             return columnOutput;

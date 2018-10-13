@@ -27,22 +27,24 @@ namespace Scheme.Controllers
             _db = db;
         }
 
-        public async Task<IActionResult> GetColumn([FromBody] GetColumnForm form)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ControllerErrorCode.WrongInputData);
+        //[Route("getSingle")]
+        //public async Task<IActionResult> GetColumn([FromBody] GetColumnForm form)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ControllerErrorCode.WrongInputData);
 
-            var email = User.Identity.Name;
+        //    var email = User.Identity.Name;
 
-            var columns = await _db.GetColumn(email, form);
+        //    var columns = await _db.GetColumn(email, form);
 
-            if (columns == null)
-                return BadRequest(_db.Columns.GetError());
+        //    if (columns == null)
+        //        return BadRequest(_db.Columns.GetError());
 
-            return Ok(columns.GetDTO());
-        }
+        //    return Ok(columns.GetDTO());
+        //}
 
-        [Route("get_all")]
+        [HttpPost]
+        [Route("getall")]
         public async Task<IActionResult> GetColumns([FromBody] GetColumnsForm form)
         {
             if (!ModelState.IsValid)
@@ -58,52 +60,52 @@ namespace Scheme.Controllers
             return Ok(columns.GetDTO());
         }
 
-        [Route("remove")]
-        public async Task<IActionResult> RemoveColumn([FromBody]RemoveColumnForm form)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ControllerErrorCode.WrongInputData);
+        //[Route("remove")]
+        //public async Task<IActionResult> RemoveColumn([FromBody]RemoveColumnForm form)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ControllerErrorCode.WrongInputData);
 
-            var email = User.Identity.Name;
+        //    var email = User.Identity.Name;
              
-            var isSuccess = await _db.RemoveColumn(email, form);
+        //    var isSuccess = await _db.RemoveColumn(email, form);
 
-            if (!isSuccess)
-                return BadRequest(_db.Columns.GetError());
+        //    if (!isSuccess)
+        //        return BadRequest(_db.Columns.GetError());
 
-            return Ok();
-        }
+        //    return Ok();
+        //}
 
-        [Route("add")]
-        public async Task<IActionResult> AddColumn([FromBody]AddColumnForm form)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ControllerErrorCode.WrongInputData);
+        //[Route("add")]
+        //public async Task<IActionResult> AddColumn([FromBody]AddColumnForm form)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ControllerErrorCode.WrongInputData);
 
-            var email = User.Identity.Name;
+        //    var email = User.Identity.Name;
 
-            var column = await _db.AddColumn(email, form);
+        //    var column = await _db.AddColumn(email, form);
 
-            if (column == null)
-                return BadRequest(_db.Columns.GetError());
+        //    if (column == null)
+        //        return BadRequest(_db.Columns.GetError());
 
-            return Ok(column.GetDTO());
-        }
+        //    return Ok(column.GetDTO());
+        //}
 
-        [Route("change_name")]
-        public async Task<IActionResult> ChangeName([FromBody]ChangeColumnNameForm form)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ControllerErrorCode.WrongInputData);
+        //[Route("change_name")]
+        //public async Task<IActionResult> ChangeName([FromBody]ChangeColumnNameForm form)
+        //{
+        //    if (!ModelState.IsValid)
+        //        return BadRequest(ControllerErrorCode.WrongInputData);
 
-            var email = User.Identity.Name;
+        //    var email = User.Identity.Name;
 
-            var isSuccess = await _db.ChangeColumnName(email, form);
+        //    var isSuccess = await _db.ChangeColumnName(email, form);
 
-            if (!isSuccess)
-                return BadRequest(_db.Columns.GetError());
+        //    if (!isSuccess)
+        //        return BadRequest(_db.Columns.GetError());
 
-            return Ok();
-        }
+        //    return Ok();
+        //}
     }
 }

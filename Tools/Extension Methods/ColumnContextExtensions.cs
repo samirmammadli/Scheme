@@ -37,7 +37,7 @@ namespace Scheme.Tools.Extension_Methods
                 return null;
             }
 
-            var columns = await db.Columns.Where(x => x.Sprint.Id == form.SprintId).ToListAsync();
+            var columns = await db.Columns.Where(x => x.Project.Id == role.Project.Id).ToListAsync();
 
             if (columns == null)
             {

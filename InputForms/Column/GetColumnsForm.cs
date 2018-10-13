@@ -10,8 +10,5 @@ namespace Scheme.InputForms.Column
     {
         [Required]
         public int ProjectId { get; set; }
-
-        [Required]
-        public int SprintId { get; set; }
     }
 }
