@@ -43,9 +43,8 @@ namespace Scheme.Controllers
         //    return Ok(columns.GetDTO());
         //}
 
-        [HttpPost]
-        [Route("getall")]
-        public async Task<IActionResult> GetColumns([FromBody] GetColumnsForm form)
+        [HttpPost("getall")]
+        public async Task<IActionResult> Columns([FromBody] GetColumnsForm form)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ControllerErrorCode.WrongInputData);
